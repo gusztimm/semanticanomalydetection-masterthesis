@@ -1,0 +1,15 @@
+loading serialized BERT model from ./input/bert_model/
+statistics original collection
+2832 logs
+Event classes : 8.044138418079097 (avg.) 64 (max)
+Variants : 68.0204802259887 (avg.) 129038 (max)
+lenghts : 3.997760586140915 (avg.) 10 (max)
+BOs : 6.893714689265536 (avg.) 52 (max)
+with loops : 569
+
+statistics noisy collection
+Event classes : 8.044138418079097 (avg.) 64 (max)
+Variants : 346.72775423728814 (avg.) 127987 (max)
+lenghts : 6.337261634539386 (avg.) 24 (max)
+BOs : 6.893714689265536 (avg.) 52 (max)
+with loops : 2832
