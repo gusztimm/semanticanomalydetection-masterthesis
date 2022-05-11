@@ -1,4 +1,0 @@
-config;log;anomaly type;event1;event2;verb1;verb2;record_conf;anomaly_count
-sim_mode:SimMode.SEMANTIC_SIM_sim_thres:0.7_match_one:True_split_loops:True_kb_heuristics:True;BPIC15_5.xes;Observation.ORDER;create decision procedure term extension;creating decision procedure term extension;create;creating;0;3
-sim_mode:SimMode.SEMANTIC_SIM_sim_thres:0.7_match_one:True_split_loops:True_kb_heuristics:True;BPIC15_5.xes;Observation.ORDER;creating decision procedure term extension;create decision procedure term extension;creating;create;0;3
-sim_mode:SimMode.SEMANTIC_SIM_sim_thres:0.7_match_one:True_split_loops:True_kb_heuristics:True;BPIC15_5.xes;Observation.ORDER;updated plan received;request updated plan;received;request;1000;1
