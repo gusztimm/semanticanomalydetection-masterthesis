@@ -49,24 +49,28 @@ class KnowledgeBase:
             return record_results
         return None
 
-        """
-        #retrieve records    
-        if (verb1, verb2, record_type) in self.record_map:
-            return self.record_map[(verb1, verb2, record_type)]
-        return None
-        """
-
     # GM-OBJ: obj added
-    def get_record_count(self, verb1, verb2, record_type):
+    # GM-OBJ: this function treats all objects as equal (attend school vs. go to school results in attend->go to)
+    def get_record_count(self, verb1, verb2, record_type, obj=''):
+
+        # retrieve list of record, regardless of object
         record_list = self.get_record(verb1, verb2, record_type)
         record_count = 0
 
         if record_list:
             for record in record_list:
-                record_count+=record.count
+
+                # Returns count of records for ALL records with verb-pair, regardless of object
+                if obj=='':
+                    record_count+=record.count
+
+                # Returns count of records with NO OBJECT/OBJECT-INDEPENDENT or with SPECIFIC OBJECT
+                else:
+                    if record.obj in ['', obj]:
+                        record_count+=record.count
 
         return record_count
-
+        
     # GM-OBJ: obj added
     def add_observation(self, verb1, verb2, obj, record_type, count=1):
         record = self.get_record_object_match(verb1, verb2, obj, record_type)
@@ -84,32 +88,35 @@ class KnowledgeBase:
         if record_type == Observation.XOR and verb2 > verb1:
             verb1, verb2 = verb2, verb1
         self.record_map[(verb1, verb2, obj, record_type)] = KnowledgeRecord(verb1, verb2, record_type, obj, count)
-
-    def has_violation(self, violation_type, verb1, verb2, sim_computer):
-        if violation_type == Observation.ORDER:
-            return self.has_order_violation(verb1, verb2, sim_computer)
-        if violation_type == Observation.XOR:
-            return self.has_xor_violation(verb1, verb2, sim_computer)
-        if violation_type == Observation.CO_OCC:
-            return self.has_cooc_dependency(verb1, verb2, sim_computer)
-        return False
-
-    def has_order_violation(self, verb1, verb2, sim_computer):
+            
+    #Never used
+    """
+        def has_violation(self, violation_type, verb1, verb2, sim_computer):
+            if violation_type == Observation.ORDER:
+                return self.has_order_violation(verb1, verb2, sim_computer)
+            if violation_type == Observation.XOR:
+                return self.has_xor_violation(verb1, verb2, sim_computer)
+            if violation_type == Observation.CO_OCC:
+                return self.has_cooc_dependency(verb1, verb2, sim_computer)
+            return False
+    """
+    def has_order_violation(self, verb1, verb2, sim_computer, obj=''):
         # heuristic: check if there is explicit evidence that verb1 can occur before verb2
         if self.apply_filter_heuristics and self.get_record_count(verb1, verb2,
-                                                                  Observation.ORDER) >= self.min_support:
+                                                                  Observation.ORDER, obj) >= self.min_support:
             return False
         # first check if there is a record that specifies that verb2 should occur before verb1
-        if self.get_record_count(verb2, verb1, Observation.ORDER) >= self.min_support:
+        if self.get_record_count(verb2, verb1, Observation.ORDER, obj) >= self.min_support:
             return True
         # if only equal verb matching, cannot be a violation anymore
         if sim_computer.sim_mode == SimMode.EQUAL:
             return False
         # else, get similar records that imply violations and check if any of them have sufficient support
-        similar_records = self.get_similar_records(verb2, verb1, Observation.ORDER, sim_computer)
+        similar_records = self.get_similar_records(verb2, verb1, Observation.ORDER, sim_computer, obj)
         is_violation = any([record.count >= self.min_support for record in similar_records])
         return is_violation
 
+    """
     def has_xor_violation(self, verb1, verb2, sim_computer):
         # heuristic: check if there is explicit evidence that the verbs should occur in a particular order or
         # if they are in co-occurrence relation. In either case, they should thus not be exclusive
@@ -129,25 +136,51 @@ class KnowledgeBase:
         similar_records = self.get_similar_records(verb1, verb2, Observation.XOR, sim_computer)
         is_violation = any([record.count >= self.min_support for record in similar_records])
         return is_violation
+    """
 
-    def has_cooc_dependency(self, verb1, verb2, sim_computer):
+    def has_xor_violation(self, verb1, verb2, sim_computer, obj=''):
+        # CASE 1+2.
+        # if obj=='' object does NOT matter
+        # if obj!='' object is differentiated, limit count to object-independent KR and object-specific KR (no unrelated objects)
+
+        # heuristic: check if there is explicit evidence that the verbs should occur in a particular order or
+        # if they are in co-occurrence relation. In either case, they should thus not be exclusive
+        if self.apply_filter_heuristics and \
+                (self.get_record_count(verb1, verb2, Observation.ORDER, obj) >= self.min_support or
+                self.get_record_count(verb2, verb1, Observation.ORDER, obj) >= self.min_support or
+                self.get_record_count(verb1, verb2, Observation.CO_OCC, obj) >= self.min_support or
+                self.get_record_count(verb2, verb1, Observation.CO_OCC, obj) >= self.min_support):
+            return False
+
+        # first check if there is a record that specifies that verb1 and verb2 should be exclusive
+        if self.get_record_count(verb1, verb2, Observation.XOR, obj) >= self.min_support:
+            return True
+        # if only equal verb matching, cannot be a violation anymore
+        if sim_computer.sim_mode == SimMode.EQUAL:
+            return False
+        # else, get similar records that imply violations and check if any of them have sufficient support
+        similar_records = self.get_similar_records(verb1, verb2, Observation.XOR, sim_computer, obj)
+        is_violation = any([record.count >= self.min_support for record in similar_records])
+        return is_violation
+
+    def has_cooc_dependency(self, verb1, verb2, sim_computer, obj=''):
         # heuristic: there cannot be a co-occurence dependency if these records are supposed to be exclusive
         if self.apply_filter_heuristics and self.get_record_count(verb1, verb2,
-                                                                  Observation.XOR) >= self.min_support:
+                                                                  Observation.XOR, obj) >= self.min_support:
             return False
         # first check if there is a record that specifies that verb1 and verb2 should co-occur
-        if self.get_record_count(verb1, verb2, Observation.CO_OCC) >= self.min_support:
+        if self.get_record_count(verb1, verb2, Observation.CO_OCC, obj) >= self.min_support:
             return True
         # if only equal verb matching, cannot be a dependency
         if sim_computer.sim_mode == SimMode.EQUAL:
             return False
         # else, get similar records that imply co-occurrence dependencies
-        similar_records = self.get_similar_records(verb1, verb2, Observation.CO_OCC, sim_computer)
+        similar_records = self.get_similar_records(verb1, verb2, Observation.CO_OCC, sim_computer, obj)
         has_dependency = any([record.count >= self.min_support for record in similar_records])
         return has_dependency
 
     # GM-OBJ: get_record returns list instead of single KR, this is now considered
-    def get_similar_records(self, verb1, verb2, record_type, sim_computer):
+    def get_similar_records(self, verb1, verb2, record_type, sim_computer, obj=''):
         sim_verbs1 = self._get_sim_verbs(verb1, sim_computer)
         sim_verbs2 = self._get_sim_verbs(verb2, sim_computer)
         records = []
@@ -161,8 +194,15 @@ class KnowledgeBase:
                         records_to_append = self.get_record(sim_verb1, sim_verb2, record_type)
 
                         #add each of them
+                        # if obj does NOT matter, use all records
+                        # if obj does MATTER, only use object-independent and object-specific records
                         for record in records_to_append:
-                            records.append(record)
+
+                            if obj=='':                            
+                                records.append(record)
+                            else:
+                                if obj in ['',obj]:
+                                    records.append(record)
 
                         #OLD: records.append(self.get_record(sim_verb1, sim_verb2, record_type))
         else:
@@ -174,10 +214,18 @@ class KnowledgeBase:
                     records_to_append = self.get_record(sim_verb1, verb2, record_type)
 
                     #add each of them
+                    # if obj does NOT matter, use all records
+                    # if obj does MATTER, only use object-independent and object-specific records
                     for record in records_to_append:
-                        records.append(record)
+
+                        if obj=='':                            
+                            records.append(record)
+                        else:
+                            if obj in ['',obj]:
+                                records.append(record)
 
                     # OLD: records.append(self.get_record(sim_verb1, verb2, record_type))
+
             for sim_verb2 in sim_verbs2:
                 if self.get_record(verb1, sim_verb2, record_type):
 
@@ -185,8 +233,15 @@ class KnowledgeBase:
                     records_to_append = self.get_record(verb1, sim_verb2, record_type)
 
                     #add each of them
+                    # if obj does NOT matter, use all records
+                    # if obj does MATTER, only use object-independent and object-specific records
                     for record in records_to_append:
-                        records.append(record)
+
+                        if obj=='':                            
+                            records.append(record)
+                        else:
+                            if obj in ['',obj]:
+                                records.append(record)
                     # OLD: records.append(self.get_record(verb1, sim_verb2, record_type))
         return records
 

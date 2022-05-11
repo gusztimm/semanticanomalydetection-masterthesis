@@ -13,7 +13,8 @@ class Configuration:
                  sim_threshold=0.7,  # define the minimal required score for verbs to be considered semantically similar
                  kb_heuristics=False, # should kb records be filtered based on conflict resolution heuristics?
                  min_support=1,  # define the minimal confidence required for a record
-                 max_count=sys.maxsize  # set the maximal times an anomaly may occur in an event log
+                 max_count=sys.maxsize,  # set the maximal times an anomaly may occur in an event log
+                 limit_bos=False # GM-OBJ only use KR which are object independent or correspond to object
                  ):
         self.use_bert_parser = use_bert_parser
         self.equal_bos = equal_bos
@@ -24,6 +25,7 @@ class Configuration:
         self.use_kb_heuristics = kb_heuristics
         self.min_support = min_support
         self.max_count = max_count
+        self.limit_bos = limit_bos # GM-OBJ
 
     def __repr__(self):
         res = "sim_mode:" + str(self.sim_mode)
@@ -39,6 +41,8 @@ class Configuration:
             res = res + "_min_support:" + str(self.min_support)
         if self.max_count < sys.maxsize:
             res = res + "_max_count:" + str(self.max_count)
+        if self.limit_bos:
+            res = res + "limit_bos:" + str(self.limit_bos)
         return res
 
     def tofilename(self):

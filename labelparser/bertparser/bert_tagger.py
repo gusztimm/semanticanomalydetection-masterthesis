@@ -1,3 +1,4 @@
+from email.parser import BytesParser
 from labelparser.bertparser.bert_wrapper import SequenceTaggerBert, BertForLabelParsing
 from labelparser.parsed_label import ParsedLabel
 import labelparser.label_utils as label_utils
@@ -49,6 +50,12 @@ class BertTagger:
     def get_action(self, label):
         if len(self.parse_label(label).actions) > 0:
             return self.parse_label(label).actions[0]
+        return None
+
+    # added for object
+    def get_object(self, label):
+        if len(self.parse_label(label).bos) > 0:
+            return self.parse_label(label).bos[0]
         return None
 
 

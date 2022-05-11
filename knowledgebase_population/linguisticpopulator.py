@@ -46,7 +46,7 @@ def populate(knowledge_base, count_per_record = 1):
 
     print('finished populating based on VerbOcean')
     print(f'candidates length with only VO: {len(candidates)}')
-    """
+    
     # PART 2: Load Conceptnet records
     with open('/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/knowledgebase_population/additional_kb/kb_conceptnet.ser','rb') as pickle_loader:
         kb_conceptnet = pickle.load(pickle_loader)
@@ -144,7 +144,7 @@ def populate(knowledge_base, count_per_record = 1):
                 #TODO: remove
                 #print('signal: candidate EXISTS, skipping')
                 pass
-    """
+    
     # PART 4: Filter false antonyms
 
     added = set()

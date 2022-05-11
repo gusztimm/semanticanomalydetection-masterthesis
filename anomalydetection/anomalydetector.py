@@ -14,6 +14,7 @@ class AnomalyDetector:
         self.split_loops = config.split_loops
         self.parser = parser
         self.sim_computer = sim_computer
+        self.limit_bos = config.limit_bos # GM-OBJ
 
         # log information
         self.log = log
@@ -80,37 +81,45 @@ class AnomalyDetector:
         if (event1_name, event2_name) in self.paired_anomaly_map:
             return self.paired_anomaly_map[(event1_name, event2_name)]
 
-        #TODO 1: add BO records to knowledge base to tuple
-        #TODO 2: anomaly detection should only happen if BO-matching to knowledge records is possible
-        #TODO 3: deal with BO synonyms
+        #todo-SOLVED 1: anomaly detection should only happen if BO-matching to knowledge records is possible
+        #TODO 2: deal with BO synonyms
 
         # check whether two event labels have same BO - if yes, then check for violation of their actions
         if self.pair_should_be_checked(event1_name, event2_name):
+            
+            #get verbs
             verb1, verb2 = self.parser.get_action(event1_name), self.parser.get_action(event2_name)
+
+            # if KR should be filtered based on object
+            if self.limit_bos:
+                #get object GM-OBJ
+                obj = self.parser.get_object(event1_name)
+            else:
+                obj = ''
+
             # check for exclusion violations
-            if self.kb.has_xor_violation(verb1, verb2, self.sim_computer):
+            if self.kb.has_xor_violation(verb1, verb2, self.sim_computer, obj):
                 # sort exclusion anomalies in a consistent manner
                 if verb1 > verb2:
                     pair_anomalies.add(Anomaly(Observation.XOR, event1_name, event2_name,
                                                verb1, verb2,
-                                               self.kb.get_record_count(verb1, verb2, Observation.XOR)))
+                                               self.kb.get_record_count(verb1, verb2, Observation.XOR, obj)))
                 else:
                     pair_anomalies.add(Anomaly(Observation.XOR, event1_name, event2_name,
                                                verb2, verb1,
-                                               self.kb.get_record_count(verb1, verb2, Observation.XOR)))
+                                               self.kb.get_record_count(verb1, verb2, Observation.XOR, obj)))
             #  check for ordering violation
-            if self.kb.has_order_violation(verb1, verb2, self.sim_computer):
+            if self.kb.has_order_violation(verb1, verb2, self.sim_computer, obj):
                 pair_anomalies.add(Anomaly(Observation.ORDER, event1_name,
                                            event2_name, verb1, verb2,
-                                           self.kb.get_record_count(verb2, verb1, Observation.ORDER)))
+                                           self.kb.get_record_count(verb2, verb1, Observation.ORDER, obj)))
             # check for potential co-occurrence violation
-            if self.kb.has_cooc_dependency(verb1, verb2, self.sim_computer):
+            if self.kb.has_cooc_dependency(verb1, verb2, self.sim_computer, obj):
                 self.coocc_pairs.add((event1_name, event2_name))
                 self.coocc_pairs.add((event2_name, event1_name))
         self.paired_anomaly_map[(event1_name, event2_name)] = pair_anomalies
         return pair_anomalies
 
-    # TODO here, ggf. implement BO matching
     def pair_should_be_checked(self, event1_name, event2_name):
         # Parse events
         e1_parse = self.parser.parse_label(event1_name)
@@ -125,6 +134,8 @@ class AnomalyDetector:
                 return True
         return False
 
+    # No object addition needed, because in coocc_pairs only those event labels have been added which correspond to an object
+    # This method does not need to be changed in this regard
     def identify_real_cooccurrence_anomalies(self, variant):
         variant_anomalies = set()
         # store all events in trace

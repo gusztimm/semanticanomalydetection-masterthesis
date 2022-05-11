@@ -17,7 +17,7 @@ class KnowledgeRecord:
         self.verb2 = verb2
         self.record_type = record_type
         self.count = count
-        self.object = obj
+        self.obj = obj
 
     def increment_count(self, count):
         self.count += count
