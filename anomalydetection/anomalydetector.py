@@ -42,7 +42,7 @@ class AnomalyDetector:
         if self.sim_computer.sim_mode == SimMode.SEMANTIC_SIM and self.sim_computer.compute_sim_per_log:
             self.sim_computer.initialize_similarities(self.kb.get_all_verbs(), self.get_all_actions_in_log())
 
-        actions = self.get_all_actions_in_log()
+        #actions = self.get_all_actions_in_log()
         print("checking for anomalies in", self.log_name, "with", len(self.simple_log.get_variants()), "variants")
         # first parse over all variants
         for variant in self.simple_log.get_variants():
@@ -93,6 +93,7 @@ class AnomalyDetector:
             # if KR should be filtered based on object
             if self.limit_bos:
                 #get object GM-OBJ
+                #obj = ''
                 obj = self.parser.get_object(event1_name)
             else:
                 obj = ''

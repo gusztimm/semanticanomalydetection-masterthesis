@@ -48,8 +48,7 @@ def run_crossvalidation():
     configs = [
         #Configuration(sim_mode=SimMode.EQUAL, limit_bos=True),
         #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True),
-        ##Configuration(sim_mode=SimMode.EQUAL, split_loops=True, limit_bos=True),
+        #Configuration(sim_mode=SimMode.EQUAL, split_loops=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, split_loops=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, min_support=10),
         Configuration(sim_mode=SimMode.SYNONYM, limit_bos=True),

@@ -52,7 +52,6 @@ class KnowledgeBase:
     # GM-OBJ: obj added
     # GM-OBJ: this function treats all objects as equal (attend school vs. go to school results in attend->go to)
     def get_record_count(self, verb1, verb2, record_type, obj=''):
-
         # retrieve list of record, regardless of object
         record_list = self.get_record(verb1, verb2, record_type)
         record_count = 0
@@ -68,7 +67,6 @@ class KnowledgeBase:
                 else:
                     if record.obj in ['', obj]:
                         record_count+=record.count
-
         return record_count
         
     # GM-OBJ: obj added
@@ -145,6 +143,7 @@ class KnowledgeBase:
 
         # heuristic: check if there is explicit evidence that the verbs should occur in a particular order or
         # if they are in co-occurrence relation. In either case, they should thus not be exclusive
+
         if self.apply_filter_heuristics and \
                 (self.get_record_count(verb1, verb2, Observation.ORDER, obj) >= self.min_support or
                 self.get_record_count(verb2, verb1, Observation.ORDER, obj) >= self.min_support or

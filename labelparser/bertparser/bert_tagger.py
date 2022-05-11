@@ -54,7 +54,9 @@ class BertTagger:
 
     # added for object
     def get_object(self, label):
+        print(f"START getting BERT-object")
         if len(self.parse_label(label).bos) > 0:
+            print(f"END getting BERT-object")
             return self.parse_label(label).bos[0]
         return None
 
