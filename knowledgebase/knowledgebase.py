@@ -27,6 +27,7 @@ class KnowledgeBase:
          #retrieve records    
         if (verb1, verb2, obj, record_type) in self.record_map:
             return self.record_map[(verb1, verb2, obj, record_type)]
+
         return None
 
     # GM-OBJ: obj added
@@ -70,22 +71,29 @@ class KnowledgeBase:
         return record_count
         
     # GM-OBJ: obj added
-    def add_observation(self, verb1, verb2, obj, record_type, count=1):
-        record = self.get_record_object_match(verb1, verb2, obj, record_type)
-        if record:
-            record.increment_count(count)
-        else:
-            self.add_new_record(verb1, verb2, obj, record_type, count)
-
-    # GM-OBJ: obj added
-    def add_new_record(self, verb1, verb2, obj, record_type, count):
-        verb1 = label_utils.lemmatize_word(verb1)
-        verb2 = label_utils.lemmatize_word(verb2)
-        obj = obj
+    def add_observation(self, verb1, verb2, obj, record_type, dataset, conf, count=1):
         # ensure consistent ordering for symmetric XOR records
         if record_type == Observation.XOR and verb2 > verb1:
             verb1, verb2 = verb2, verb1
-        self.record_map[(verb1, verb2, obj, record_type)] = KnowledgeRecord(verb1, verb2, record_type, obj, count)
+
+        record = self.get_record_object_match(verb1, verb2, record_type, obj)
+        if record is not None:
+            record.increment_count(count)
+            record.add_source(dataset, conf)
+        else:
+            self.add_new_record(verb1, verb2, obj, record_type, count, dataset, conf)
+
+    # GM-OBJ: obj added
+    def add_new_record(self, verb1, verb2, obj, record_type, count, dataset, conf):
+        verb1 = label_utils.lemmatize_word(verb1)
+        verb2 = label_utils.lemmatize_word(verb2)
+        obj = obj
+        source = {(dataset, conf)} #set() object with a single tuple (VERBOCEAN, 1,0)
+
+        # ensure consistent ordering for symmetric XOR records
+        if record_type == Observation.XOR and verb2 > verb1:
+            verb1, verb2 = verb2, verb1
+        self.record_map[(verb1, verb2, obj, record_type)] = KnowledgeRecord(verb1, verb2, record_type, obj, count, source)
             
     #Never used
     """

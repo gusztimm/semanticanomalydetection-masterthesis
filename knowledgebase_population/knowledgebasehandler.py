@@ -2,6 +2,7 @@ import os, pickle
 
 from knowledgebase.knowledgebase import KnowledgeBase
 from knowledgebase_population import linguisticpopulator
+from knowledgebase.knowledgerecord import Dataset
 
 
 bpm_ai_json_dir = "input/knowledgebase/bpmai/models"
@@ -39,7 +40,7 @@ def populate_from_ser_fragments(ser_dir, case_names=None, add_verbocean=True):
         if os.path.isfile(file_path):
             observations = pickle.load(open(file_path, "rb"))
             for observation in observations:
-                kb.add_observation(observation[0], observation[1], '', observation[2]) #empty string is object
+                kb.add_observation(observation[0], observation[1], '', observation[2], Dataset.BPMAI, -1) #empty string is object
 
     if add_verbocean:
         linguisticpopulator.populate(kb, count_per_record=1000)

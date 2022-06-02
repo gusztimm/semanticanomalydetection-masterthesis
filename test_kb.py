@@ -1,19 +1,25 @@
 from knowledgebase_population import linguisticpopulator, knowledgebasehandler, knowledgebasehandler_original
-from knowledgebase.knowledgerecord import KnowledgeRecord, Observation
+from knowledgebase.knowledgerecord import Dataset, KnowledgeRecord, Observation
 
 
 kb_new = knowledgebasehandler.populate_verbocean()
-limit = 100
+
+
+limit = 100000000000000000
 
 print(f'New KR with objects, first {limit} records:')
-i=0
+i=1
 for key in kb_new.record_map.keys():
-    print(kb_new.record_map[key])
-    i+=1
+    kr = kb_new.record_map[key]
+    if len(kr.source)>1:
+        i+=1
+        print(kr)
+        
 
     if i>limit:
         break
 
+print(f'records with more than one SRC: {i}')
 """
 print(f'Old vanilla KB with VO only, first {limit} records:')
 j=0

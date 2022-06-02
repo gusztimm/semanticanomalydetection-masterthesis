@@ -1,11 +1,13 @@
+from sklearn import datasets
 from knowledgebase.knowledgebase import KnowledgeBase
-from knowledgebase.knowledgerecord import Observation
+from knowledgebase.knowledgerecord import Observation, Dataset
 
 import pickle
 
 """
 @author: Gusztáv Megyesi
 """
+# TODO: add_observation() add dataset, conf
 
 rel_to_observation = {#VerbOcean
                       "antonymy": Observation.XOR,
@@ -40,7 +42,7 @@ def populate(knowledge_base, count_per_record = 1):
                 (verb1, rel, verb2, conf) = _line_to_tuple_verbocean(line)
                 if rel in rel_to_observation:
                     observation_type = rel_to_observation[rel]
-                    candidates.add((verb1, verb2, observation_type, '')) #empty string is object string
+                    candidates.add((verb1, verb2, observation_type, '', Dataset.VERBOCEAN, conf)) #empty string is object string
             line = f.readline()
 
 
@@ -66,15 +68,17 @@ def populate(knowledge_base, count_per_record = 1):
             observation_type = rel_to_observation[rel]
 
             # if exists, leave it
-            if (verb1, verb2, observation_type, '') not in candidates:
+            if (verb1, verb2, observation_type, '', Dataset.CONCEPTNET, score) not in candidates:
                 #print('signal: candidate does NOT exist yet, proceed to check further')
 
                 if observation_type==Observation.XOR: #relation: Antonym
                     #print('signal: candidate is ANTONYM, proceed to check if exists opposite way')
+                
                     # if opposite relation already exists, skip
-                    if (verb2, verb1, observation_type, '') not in candidates:
+                    # note: if opposite is there with another score/dataset, it will be filtered in kb.add_observation()
+                    if (verb2, verb1, observation_type, '', Dataset.CONCEPTNET, score) not in candidates:
                         #print('signal: candidate is ANTONYM, and not in dict yet, add it!')
-                        candidates.add((verb1, verb2, observation_type, ''))
+                        candidates.add((verb1, verb2, observation_type, '', Dataset.CONCEPTNET, score))
                         
                         # set counter
                         #counter_antonym+=1
@@ -84,7 +88,7 @@ def populate(knowledge_base, count_per_record = 1):
                     #CAUTION:
                     # VerbOcean has relation: verb1 - HappensBefore - verb2
                     # ConceptNet has relation: verb1 - HasPrerequisite - verb2 // meaning that verb2 happensBefore verb1
-                    candidates.add((verb2, verb1, observation_type, ''))
+                    candidates.add((verb2, verb1, observation_type, '', Dataset.CONCEPTNET, score))
                     # set counter
                     #counter_hasprerequisite+=1
             else:
@@ -117,15 +121,17 @@ def populate(knowledge_base, count_per_record = 1):
             observation_type = rel_to_observation[rel]
 
             # if exists, leave it
-            if (verb1, verb2, observation_type, obj) not in candidates:
+            if (verb1, verb2, observation_type, obj, Dataset.ATOMIC, score) not in candidates:
                 #print('signal: candidate does NOT exist yet, proceed to check further')
 
                 if observation_type==Observation.XOR: #relation: Antonym
                     #print('signal: candidate is ANTONYM, proceed to check if exists opposite way')
+
                     # if opposite relation already exists, skip
-                    if (verb2, verb1, observation_type, obj) not in candidates:
+                    # note: if opposite is there with another score/dataset, it will be filtered in kb.add_observation()
+                    if (verb2, verb1, observation_type, obj, Dataset.ATOMIC, score) not in candidates:
                         #print('signal: candidate is ANTONYM, and not in dict yet, add it!')
-                        candidates.add((verb1, verb2, observation_type, obj))
+                        candidates.add((verb1, verb2, observation_type, obj, Dataset.ATOMIC, score))
                         
                         # set counter
                         #counter_antonym+=1
@@ -135,13 +141,12 @@ def populate(knowledge_base, count_per_record = 1):
                     #CAUTION:
                     # VerbOcean has relation: verb1 - happensBefore - verb2
                     # ConceptNet has relation: verb1 - hasPrerequisite - verb2 // meaning that verb2 happensBefore verb1
-                    candidates.add((verb2, verb1, observation_type, obj))
+                    candidates.add((verb2, verb1, observation_type, obj, Dataset.ATOMIC, score))
                     # set counter
                     #counter_hasprerequisite+=1
                 elif observation_type==Observation.CO_OCC:
-                    candidates.add((verb1, verb2, observation_type, obj))
+                    candidates.add((verb1, verb2, observation_type, obj, Dataset.ATOMIC, score))
             else:
-                #TODO: remove
                 #print('signal: candidate EXISTS, skipping')
                 pass
     
@@ -151,10 +156,14 @@ def populate(knowledge_base, count_per_record = 1):
     counter = 0
 
     # filter out false antonyms
-    for (verb1, verb2, observation_type, obj) in candidates:
+    for (verb1, verb2, observation_type, obj, dataset, score) in candidates:
+        knowledge_base.add_observation(verb1, verb2, obj, observation_type, dataset, score, count = count_per_record)
+        continue
+    #TODO remove continue
+
         if observation_type in (Observation.ORDER, Observation.CO_OCC):
             #print('adding ORDER/CO_OCC rel:', verb1, verb2)
-            knowledge_base.add_observation(verb1, verb2, obj, observation_type, count = count_per_record)
+            knowledge_base.add_observation(verb1, verb2, obj, observation_type, dataset, score, count = count_per_record)
             counter+=1
         if observation_type is Observation.XOR:
             
@@ -201,7 +210,7 @@ def _line_to_tuple_serialized(record, record_src):
     if 'score' in record.keys():
         conf = record['score']
     else:
-        conf = 0
+        conf = -1
 
     # Invert isBefore
     if record_src=='atomic' and rel=='isBefore':
