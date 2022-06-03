@@ -1,11 +1,9 @@
-from knowledgebase.knowledgerecord import Observation
+from re import A
 
-d = {
-    1 : 10,
-    2 : 10,
-    3 : 10,
-    4 : 10,
-}
 
-print(1 in d)
-print(10 in d)
+a = 1
+b = a
+
+a = 55
+
+print(b)

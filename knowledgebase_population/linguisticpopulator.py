@@ -7,7 +7,7 @@ import pickle
 """
 @author: Gusztáv Megyesi
 """
-# TODO: add_observation() add dataset, conf
+
 
 rel_to_observation = {#VerbOcean
                       "antonymy": Observation.XOR,
@@ -48,7 +48,7 @@ def populate(knowledge_base, count_per_record = 1):
 
     print('finished populating based on VerbOcean')
     print(f'candidates length with only VO: {len(candidates)}')
-    
+
     # PART 2: Load Conceptnet records
     with open('/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/knowledgebase_population/additional_kb/kb_conceptnet.ser','rb') as pickle_loader:
         kb_conceptnet = pickle.load(pickle_loader)
@@ -92,7 +92,6 @@ def populate(knowledge_base, count_per_record = 1):
                     # set counter
                     #counter_hasprerequisite+=1
             else:
-                #TODO: remove
                 #print('signal: candidate EXISTS, skipping')
                 pass
 
@@ -149,7 +148,10 @@ def populate(knowledge_base, count_per_record = 1):
             else:
                 #print('signal: candidate EXISTS, skipping')
                 pass
-    
+
+    print(f'candidate length with also Atomic: {len(candidates)}')
+    print('finished populating based on Atomic')
+
     # PART 4: Filter false antonyms
 
     added = set()
@@ -157,17 +159,16 @@ def populate(knowledge_base, count_per_record = 1):
 
     # filter out false antonyms
     for (verb1, verb2, observation_type, obj, dataset, score) in candidates:
-        knowledge_base.add_observation(verb1, verb2, obj, observation_type, dataset, score, count = count_per_record)
-        continue
-    #TODO remove continue
+        #knowledge_base.add_observation(verb1, verb2, obj, observation_type, dataset, score, count = count_per_record)
+        #continue
+        #TODO remove continue
 
         if observation_type in (Observation.ORDER, Observation.CO_OCC):
             #print('adding ORDER/CO_OCC rel:', verb1, verb2)
             knowledge_base.add_observation(verb1, verb2, obj, observation_type, dataset, score, count = count_per_record)
             counter+=1
+
         if observation_type is Observation.XOR:
-            
-            #TODO: implement looking for false antonyms object-independently
             
             # Is there for this antonym relation also an ORDER relation?
             xor_order_1 = [candidate for candidate in candidates if candidate[0]==verb1 and candidate[1]==verb2 and candidate[2]==Observation.ORDER]
@@ -176,7 +177,7 @@ def populate(knowledge_base, count_per_record = 1):
             if len(xor_order_1)==0 and len (xor_order_2)==0:
                 if (verb2, verb1, observation_type, obj) not in added:
                     #print('adding ANTONYM rel:', verb1, verb2)
-                    knowledge_base.add_observation(verb1, verb2, obj, observation_type, count = count_per_record)
+                    knowledge_base.add_observation(verb1, verb2, obj, observation_type, dataset, score, count = count_per_record)
                     counter+=1
                     added.add( (verb1, verb2, observation_type, obj))
 
@@ -229,7 +230,6 @@ def _line_to_tuple_verbocean(line):
     conf = line[conf_delim: len(line)].strip()
     return (verb1, rel, verb2, conf)
 
-# TODO: cartesian product of multi-verb-lists must be built or alternative approach
 def _list_to_string(list):
     for str in list:
         if str!='':

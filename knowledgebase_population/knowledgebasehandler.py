@@ -5,10 +5,10 @@ from knowledgebase_population import linguisticpopulator
 from knowledgebase.knowledgerecord import Dataset
 
 
-bpm_ai_json_dir = "input/knowledgebase/bpmai/models"
-bpm_ai_petri_dir = "input/knowledgebase/bpmai/petrinets"
-bpm_ai_xes_dir = "input/knowledgebase/bpmai/extracted_logs"
-bpm_ai_ser_kr_dir = "input/knowledgebase/bpmai/extracted_records"
+bpm_ai_json_dir = "input/bpmai/models"
+bpm_ai_petri_dir = "input/bpmai/petrinets"
+bpm_ai_xes_dir = "input/bpmai/extracted_logs"
+bpm_ai_ser_kr_dir = "input/bpmai/extracted_records"
 
 
 def populate_knowledge_base(use_bpmai, use_verbocean):
@@ -31,12 +31,14 @@ def load_serialized_kb(kb_file):
 
 
 def populate_from_ser_fragments(ser_dir, case_names=None, add_verbocean=True):
+    print(f'ser_dir: {ser_dir}')
     kb = KnowledgeBase()
     # if case_names is not specified, all files will be used for population
     if not case_names:
         case_names = [f for f in os.listdir(ser_dir) if f.endswith(".krser")]
     for case_name in case_names:
-        file_path = os.path.join(ser_dir, case_name + ".krser")
+        file_path = os.path.join(ser_dir, case_name  + '.krser')
+        print(file_path)
         if os.path.isfile(file_path):
             observations = pickle.load(open(file_path, "rb"))
             for observation in observations:
