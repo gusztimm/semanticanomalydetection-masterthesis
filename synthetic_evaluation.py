@@ -47,18 +47,18 @@ warnings.filterwarnings("ignore", message="invalid value encountered in multiply
 def run_crossvalidation():
     configs = [
         Configuration(sim_mode=SimMode.EQUAL, limit_bos=False),
-        #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, limit_bos=True),
+        Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, limit_bos=False),
         #Configuration(sim_mode=SimMode.EQUAL, split_loops=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, split_loops=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, min_support=10),
-        #Configuration(sim_mode=SimMode.SYNONYM, limit_bos=True),
+        Configuration(sim_mode=SimMode.SYNONYM, limit_bos=False),
         #Configuration(sim_mode=SimMode.SYNONYM, split_loops=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SYNONYM, kb_heuristics=True, limit_bos=True),
+        Configuration(sim_mode=SimMode.SYNONYM, kb_heuristics=True, limit_bos=False),
         #Configuration(sim_mode=SimMode.SYNONYM, match_one=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.SYNONYM, match_one=True, kb_heuristics=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, limit_bos=True),
+        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, limit_bos=False),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, split_loops=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, limit_bos=True),
+        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, limit_bos=False),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, match_one=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, limit_bos=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, kb_heuristics=True, limit_bos=True),
@@ -71,7 +71,7 @@ def run_crossvalidation():
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.9, kb_heuristics=True, limit_bos=True),
     ]
 
-    results_file = "output/results_vo_cn_at_with_limitbos_EQtest_" + time.strftime("%Y%m%d%H%M%S") + ".csv"
+    results_file = "output/results_vo_cn_at_with_limitbos_fixconflTest_" + time.strftime("%Y%m%d%H%M%S") + ".csv"
     orig_log_collection = pickle.load(open(orig_log_collection_file, "rb"))
     noisy_log_collection = pickle.load(open(noisy_log_collection_file, "rb"))
 

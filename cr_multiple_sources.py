@@ -1,4 +1,3 @@
-import datetime
 from knowledgebase_population import linguisticpopulator, knowledgebasehandler, knowledgebasehandler_original
 from knowledgebase.knowledgerecord import Dataset, KnowledgeRecord, Observation
 import os

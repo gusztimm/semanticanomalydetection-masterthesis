@@ -1,6 +1,7 @@
 from sklearn import datasets
 from knowledgebase.knowledgebase import KnowledgeBase
 from knowledgebase.knowledgerecord import Observation, Dataset
+from sklearn.preprocessing import minmax_scale, StandardScaler
 
 import pickle
 
@@ -25,6 +26,13 @@ rel_to_observation = {#VerbOcean
                       #"isBefore": Observation.ORDER, #happens before -> ORDER - manually set to ISAFTER to retain order
                       "isAfter": Observation.ORDER #happens after -> ORDER)
                     }
+
+dataset_ranking = {
+    Dataset.VERBOCEAN : 1,
+    Dataset.CONCEPTNET : 2,
+    Dataset.ATOMIC : 3,
+    Dataset.BPMAI : 4
+}
 
 def populate(knowledge_base, count_per_record = 1):
 
@@ -159,8 +167,8 @@ def populate(knowledge_base, count_per_record = 1):
 
     # filter out false antonyms
     for (verb1, verb2, observation_type, obj, dataset, score) in candidates:
-        #knowledge_base.add_observation(verb1, verb2, obj, observation_type, dataset, score, count = count_per_record)
-        #continue
+        knowledge_base.add_observation(verb1, verb2, obj, observation_type, dataset, score, count = count_per_record)
+        continue
         #TODO remove continue
 
         if observation_type in (Observation.ORDER, Observation.CO_OCC):
@@ -208,16 +216,25 @@ def _line_to_tuple_serialized(record, record_src):
     obj = record['object1'] #object1=object2 in extraction
     rel = record['relation']
 
-    if 'score' in record.keys():
-        conf = record['score']
-    else:
-        conf = -1
+    # Get raw confidence score
+    if 'score' in record.keys(): # affects only conceptnet
+        record_score = record['score']
+        conf = float(record_score[record_score.find('::')+3:len(record_score)].strip())
+    else: # affects Atomic
+        conf = 1
+
+    #conceptnet
+    if 'score' in record.keys(): 
+        #Normalize confidence score
+        min_conf = 0.1
+        max_conf = 1
+        normconf = _normalize_conf(min_conf, max_conf, conf)
 
     # Invert isBefore
     if record_src=='atomic' and rel=='isBefore':
         return (verb2, 'isAfter', verb1, obj, conf, record_src)
     else:
-        return (verb1, rel, verb2, obj, conf, record_src)
+        return (verb1, rel, verb2, obj, normconf, record_src)
 
 
 def _line_to_tuple_verbocean(line):
@@ -227,8 +244,14 @@ def _line_to_tuple_verbocean(line):
     verb1 = line[:start_br].strip()
     rel = line[start_br + 1: end_br].strip()
     verb2 = line[end_br + 1: conf_delim].strip()
-    conf = line[conf_delim: len(line)].strip()
-    return (verb1, rel, verb2, conf)
+
+    #Normalize confidence score
+    min_conf = 8.502357
+    max_conf = 26.451366
+    conf = float(line[conf_delim+3: len(line)].strip())
+    normconf = _normalize_conf(min_conf, max_conf, conf)
+
+    return (verb1, rel, verb2, normconf)
 
 def _list_to_string(list):
     for str in list:
@@ -236,6 +259,9 @@ def _list_to_string(list):
             return str
     else:
         return ''
+
+def _normalize_conf(min_conf, max_conf, score):
+    return (score-min_conf)/(max_conf-min_conf)
 
 def get_all_verbs():
     temp_kb = KnowledgeBase()

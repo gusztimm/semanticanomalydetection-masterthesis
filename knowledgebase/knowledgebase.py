@@ -122,28 +122,6 @@ class KnowledgeBase:
         is_violation = any([record.count >= self.min_support for record in similar_records])
         return is_violation
 
-    """
-    def has_xor_violation(self, verb1, verb2, sim_computer):
-        # heuristic: check if there is explicit evidence that the verbs should occur in a particular order or
-        # if they are in co-occurrence relation. In either case, they should thus not be exclusive
-        if self.apply_filter_heuristics and \
-                (self.get_record_count(verb1, verb2, Observation.ORDER) >= self.min_support or
-                 self.get_record_count(verb2, verb1, Observation.ORDER) >= self.min_support or
-                 self.get_record_count(verb1, verb2, Observation.CO_OCC) >= self.min_support or
-                 self.get_record_count(verb2, verb1, Observation.CO_OCC) >= self.min_support):
-            return False
-        # first check if there is a record that specifies that verb1 and verb2 should be exclusive
-        if self.get_record_count(verb1, verb2, Observation.XOR) >= self.min_support:
-            return True
-        # if only equal verb matching, cannot be a violation anymore
-        if sim_computer.sim_mode == SimMode.EQUAL:
-            return False
-        # else, get similar records that imply violations and check if any of them have sufficient support
-        similar_records = self.get_similar_records(verb1, verb2, Observation.XOR, sim_computer)
-        is_violation = any([record.count >= self.min_support for record in similar_records])
-        return is_violation
-    """
-
     def has_xor_violation(self, verb1, verb2, sim_computer, obj=''):
         # CASE 1+2.
         # if obj=='' object does NOT matter

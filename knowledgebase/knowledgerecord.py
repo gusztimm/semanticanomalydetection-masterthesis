@@ -25,6 +25,7 @@ class KnowledgeRecord:
         self.count = count
         self.source = source
         self.obj = obj
+        self.normconf = -1
         
 
     def increment_count(self, count):

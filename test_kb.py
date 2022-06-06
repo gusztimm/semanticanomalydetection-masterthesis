@@ -1,24 +1,18 @@
-from knowledgebase_population import linguisticpopulator, knowledgebasehandler, knowledgebasehandler_original
+from knowledgebase_population import linguisticpopulator, knowledgebasehandler
 from knowledgebase.knowledgerecord import Dataset, KnowledgeRecord, Observation
-
-kb_new = knowledgebasehandler.populate_verbocean()
-
-#empty dict
-collection = {}
-
-# ITERATE over KB
-for key in kb_new.record_map.keys():
-    kr = kb_new.record_map[key]
+import pickle
+import sys
+import matplotlib.pyplot as plt
+import numpy as np
 
 
-# PRINT collection
-limit = 100
-i=1
+class Object:
 
-for key, kr in collection.items():
-    
-    if len(kr.src_set) > 1:
-        i+=1
-        print(kr)
+    def __init__(self, set):
+        self.set = set
 
-print(i)
+
+o1 = Object({'a',1})
+o2 = Object({'a',2})
+o3 = Object({'a',3})
+o4 = Object({'a',4})

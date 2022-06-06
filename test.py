@@ -1,9 +1,11 @@
-from re import A
+from sklearn.preprocessing import minmax_scale, StandardScaler
+import numpy as np
 
+data = [1,2,3,4,5]
 
-a = 1
-b = a
+print(minmax_scale(data))
 
-a = 55
+scaler = StandardScaler()
 
-print(b)
+data_to_norm = np.array(data).reshape(-1,1)
+print(scaler.fit_transform(data_to_norm))
