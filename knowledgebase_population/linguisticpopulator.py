@@ -27,12 +27,6 @@ rel_to_observation = {#VerbOcean
                       "isAfter": Observation.ORDER #happens after -> ORDER)
                     }
 
-dataset_ranking = {
-    Dataset.VERBOCEAN : 1,
-    Dataset.CONCEPTNET : 2,
-    Dataset.ATOMIC : 3,
-    Dataset.BPMAI : 4
-}
 
 def populate(knowledge_base, count_per_record = 1):
 
@@ -200,9 +194,13 @@ def populate(knowledge_base, count_per_record = 1):
                     counter+=1
                     added.add( (verb1, verb2, obj, observation_type))
             """
-    print(counter)
-    print('finished populating based on linguistic resources')
+    
+# PART 5: set normalized confidence scores in case a single record is available in several datasets
+    knowledge_base.set_norm_confidence_for_all_records()
 
+
+    print('finished populating based on linguistic resources')
+            
 
 def get_all_verbs():
     temp_kb = KnowledgeBase()
@@ -216,23 +214,24 @@ def _line_to_tuple_serialized(record, record_src):
     obj = record['object1'] #object1=object2 in extraction
     rel = record['relation']
 
-    # Get raw confidence score
+    # Get raw confidence score - cap it at 1 (Conceptnet)
     if 'score' in record.keys(): # affects only conceptnet
         record_score = record['score']
         conf = float(record_score[record_score.find('::')+3:len(record_score)].strip())
+        conf = min(1,conf)
     else: # affects Atomic
         conf = 1
 
-    #conceptnet
-    if 'score' in record.keys(): 
-        #Normalize confidence score
-        min_conf = 0.1
-        max_conf = 1
-        normconf = _normalize_conf(min_conf, max_conf, conf)
+
+    #Normalize confidence score
+    #Note: we even min-max-normalize Atomic score here, but as long as it is flat-set to 1 by default, it will remain 1
+    min_conf = 0.1
+    max_conf = 1
+    normconf = _normalize_conf(min_conf, max_conf, conf)
 
     # Invert isBefore
     if record_src=='atomic' and rel=='isBefore':
-        return (verb2, 'isAfter', verb1, obj, conf, record_src)
+        return (verb2, 'isAfter', verb1, obj, normconf, record_src)
     else:
         return (verb1, rel, verb2, obj, normconf, record_src)
 

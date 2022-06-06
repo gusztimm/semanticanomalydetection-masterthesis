@@ -1,4 +1,4 @@
-from knowledgebase.knowledgerecord import KnowledgeRecord, Observation
+from knowledgebase.knowledgerecord import KnowledgeRecord, Observation, Dataset
 import labelparser.label_utils as label_utils
 from gensim.utils import simple_preprocess
 
@@ -9,6 +9,13 @@ from knowledgebase.similaritycomputer import SimMode
 """
 
 class KnowledgeBase:
+
+    dataset_ranking = {
+                Dataset.VERBOCEAN : 1,
+                Dataset.CONCEPTNET : 2,
+                Dataset.ATOMIC : 3,
+                Dataset.BPMAI : 4
+    }   
 
     def __init__(self):
         self.record_map = {}
@@ -69,6 +76,47 @@ class KnowledgeBase:
                     if record.obj in ['', obj]:
                         record_count+=record.count
         return record_count
+
+    def get_record_confidence(self, verb1, verb2, record_type, obj=''):
+        # retrieve list of record, regardless of object
+        record_list = self.get_record(verb1, verb2, record_type)
+        record_confidence = 0
+
+        if record_list:
+            for record in record_list:
+                
+                # Returns count of records for ALL records with verb-pair, regardless of object
+                if obj=='':
+                    record_confidence+=record.normconf
+
+                # Returns count of records with NO OBJECT/OBJECT-INDEPENDENT or with SPECIFIC OBJECT
+                else:
+                    if record.obj in ['', obj]:
+                        record_confidence+=record.normconf
+
+        return record_confidence
+
+    def get_record_rank(self, verb1, verb2, record_type, obj=''):
+        # retrieve list of record, regardless of object
+        record_list = self.get_record(verb1, verb2, record_type)
+        record_rank = set()
+
+        if record_list:
+            for record in record_list:
+                
+                # Returns rank of records for ALL records with verb-pair, regardless of object
+                if obj=='':
+                    for src in record.source:
+                        record_rank.add(self.dataset_ranking[src[0]])
+
+                # Returns rank of records with NO OBJECT/OBJECT-INDEPENDENT or with SPECIFIC OBJECT
+                else:
+                    if record.obj in ['', obj]:
+                        for src in record.source:
+                            record_rank.add(self.dataset_ranking[src[0]])
+
+        # Return lowest rank (highest priority)
+        return min(record_rank)
         
     # GM-OBJ: obj added
     def add_observation(self, verb1, verb2, obj, record_type, dataset, conf, count=1):
@@ -242,6 +290,7 @@ class KnowledgeBase:
         return sim_verbs
 
     # TODO clarify what this is doing, never used
+    """
     def filter_out_conflicting_records(self):
         new_map = {}
         for (verb1, verb2, record_type) in self.record_map:
@@ -277,6 +326,54 @@ class KnowledgeBase:
                 #     print('removing', (verb1, verb2, record_type, co_occ_count), "from kb. XOR count:",
                 #           xor_count)
         self.record_map = new_map
+    """
+
+    def set_norm_confidence_for_all_records(self):
+        
+        
+        #Extract normalized confidence for single record
+        #If included in several datasets, add up
+        #If included several times in same dataset, get highest conf
+        
+        for key, knowledge_record in self.record_map.items():
+            norm_confidence = 0
+            conf_dict = {}
+            
+            # If single source, then just copy normalized conf score, and jump to next
+            if len(knowledge_record.source)==1:
+
+                for src in knowledge_record.source:
+                    knowledge_record.normconf=src[1]
+                continue
+
+            else:
+                # More sources: iterate over each source
+                for src in knowledge_record.source:
+                    # Extract values
+                    dataset = src[0]
+                    conf = src[1]
+
+                    # No conf for that dataset - add it
+                    if dataset not in conf_dict.keys():
+                        conf_dict[dataset] = conf
+                    # Duplicate in same dataset - check if new value is higher
+                    else:
+                        existing_conf = conf_dict[dataset]
+
+                        # If higher, then overwrite
+                        if conf>existing_conf:
+                            conf_dict[dataset] = conf
+                
+                # add up conf scores
+                for key, value in conf_dict.items():
+                    norm_confidence+=value
+        
+            knowledge_record.normconf = norm_confidence
+
+
+    def filter_out_conflicting_records(self):
+        pass
+    
 
     def get_all_verbs(self):
         if not self.verbs:

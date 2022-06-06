@@ -26,7 +26,6 @@ class KnowledgeRecord:
         self.source = source
         self.obj = obj
         self.normconf = -1
-        
 
     def increment_count(self, count):
         self.count += count
@@ -40,4 +39,4 @@ class KnowledgeRecord:
             out_object = '[E]'
         
         #return str(self.record_type) + ": " + self.verb1 + " - " + self.verb2 + " object: " + out_object + " count: " + str(self.count) + " source: " + self.source
-        return f"{str(self.record_type)}: {self.verb1} - {self.verb2} object: {out_object} count: {str(self.count)} src: {self.source}"
+        return f"{str(self.record_type)}: {self.verb1} - {self.verb2} object: {out_object} count: {str(self.count)} src: {self.source} normconf: {self.normconf}"
