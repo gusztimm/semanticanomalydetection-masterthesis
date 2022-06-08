@@ -33,6 +33,15 @@ class KnowledgeRecord:
     def add_source(self, dataset, conf):
         self.source.add((dataset, conf))
 
+    # Get rank of KnowledgeRecord object
+    def get_knowledge_record_object_rank(self, dataset_ranking):
+        record_ranks = set()
+
+        for src in self.source:
+            record_ranks.add(dataset_ranking[src[0]])
+
+        return min(record_ranks)
+
     def __repr__(self):
         out_object = self.obj
         if out_object == '':

@@ -8,21 +8,26 @@ from knowledgebase.similaritycomputer import SimMode
 @GM: object property extended
 """
 
+class ConfidenceMode(Enum):
+    SUM = 1,
+    MAX = 2
+
 class KnowledgeBase:
 
     dataset_ranking = {
-                Dataset.VERBOCEAN : 3,
+                Dataset.VERBOCEAN : 1,
                 Dataset.CONCEPTNET : 2,
-                Dataset.ATOMIC : 1,
+                Dataset.ATOMIC : 3,
                 Dataset.BPMAI : 4
-    }   
+    }
 
     def __init__(self):
         self.record_map = {}
         self.verbs = None
         self.min_support = 1
         self.apply_filter_heuristics = False
-        self.filter_heuristics_rank = True
+        self.filter_heuristics_rank = False
+        self.filter_heuristics_cscore = False
 
     def get_record_object_match(self, verb1, verb2, record_type, obj):
         verb1 = label_utils.lemmatize_word(verb1)
@@ -32,7 +37,7 @@ class KnowledgeBase:
         if record_type == Observation.XOR and verb2 > verb1:
             verb1, verb2 = verb2, verb1
 
-         #retrieve records    
+         #retrieve records
         if (verb1, verb2, obj, record_type) in self.record_map:
             return self.record_map[(verb1, verb2, obj, record_type)]
 
@@ -78,23 +83,32 @@ class KnowledgeBase:
                         record_count+=record.count
         return record_count
 
-    def get_record_confidence(self, verb1, verb2, record_type, obj=''):
+    def get_record_confidence(self, verb1, verb2, record_type, obj='', mode=ConfidenceMode.SUM):
         # retrieve list of record, regardless of object
         record_list = self.get_record(verb1, verb2, record_type)
-        record_confidence = -1
+        record_confidence = 0
 
         if record_list:
-            record_confidence=0
             for record in record_list:
-                
+
                 # Returns count of records for ALL records with verb-pair, regardless of object
                 if obj=='':
-                    record_confidence+=record.normconf
+                    if mode=ConfidenceMode.SUM:
+                        record_confidence+=record.normconf
+
+                    if mode=ConfidenceMode.MAX:
+                        if record.normconf > record_confidence:
+                            record_confidence = record.normconf
 
                 # Returns count of records with NO OBJECT/OBJECT-INDEPENDENT or with SPECIFIC OBJECT
                 else:
                     if record.obj in ['', obj]:
-                        record_confidence+=record.normconf
+                        if mode=ConfidenceMode.SUM
+                            record_confidence+=record.normconf
+
+                        if mode=ConfidenceMode.MAX:
+                            if record.normconf > record_confidence:
+                                record_confidence = record.normconf
 
         return record_confidence
 
@@ -106,7 +120,7 @@ class KnowledgeBase:
 
         if record_list:
             for record in record_list:
-                
+
                 # Returns rank of records for ALL records with verb-pair, regardless of object
                 if obj=='':
                     for src in record.source:
@@ -121,7 +135,7 @@ class KnowledgeBase:
         # Return lowest rank (highest priority)
         return min(record_rank)
 
-        
+
     # GM-OBJ: obj added
     def add_observation(self, verb1, verb2, obj, record_type, dataset, conf, count=1):
         # ensure consistent ordering for symmetric XOR records
@@ -146,7 +160,7 @@ class KnowledgeBase:
         if record_type == Observation.XOR and verb2 > verb1:
             verb1, verb2 = verb2, verb1
         self.record_map[(verb1, verb2, obj, record_type)] = KnowledgeRecord(verb1, verb2, record_type, obj, count, source)
-            
+
     #Never used
     """
         def has_violation(self, violation_type, verb1, verb2, sim_computer):
@@ -160,10 +174,54 @@ class KnowledgeBase:
     """
     def has_order_violation(self, verb1, verb2, sim_computer, obj=''):
 
+        # START confidence-score filtering
+        if self.filter_heuristics_cscore==True:
+            pro_conf = -1
+            contra_rank = -1
+
+            # 1. check confidence of EXACT MATCH record specifying XOR relation
+            conf_order_exact_match = self.get_record_confidence(verb2, verb1, Observation.ORDER, obj)
+            pro_conf = conf_order_exact_match
+
+            # 2. If no EXACT match, and EQ matching only allowed, then cannot be a violation
+            if (sim_computer.sim_mode == SimMode.EQUAL) and pro_rank==-1:
+                return False
+
+            # 3. SYN or SEM config, thus need to get similar records
+            if (sim_computer.sim_mode != SimMode.EQUAL):
+                #GET similar records
+                similar_records = self.get_similar_records(verb1, verb2, Observation.ORDER, sim_computer, obj)
+
+                if not similar_records:
+                    # No similar record, rank 99
+                    conf_order_similar_records = -1
+                else:
+                    #Get the rank of the most prestigious similar record
+                    rank_order_similar_records= min([record.get_knowledge_record_object_rank(self.dataset_ranking) for record in similar_records])
+
+                # Get the best-ranked record
+                pro_rank = min(rank_order_exact_match, rank_order_similar_records)
+
+                # If neither EQ nor similarity match found supporting evidence, then not a violation
+                if pro_rank==99:
+                    return False
+
+            # 4. Filtering exclusion relations: are there ORDER/CO_OCC records contradicting with BETTER or same rank?
+            contra_rank = self.get_record_rank(verb1, verb2, Observation.ORDER, obj)
+
+            # 5. Compare ranks
+            if pro_rank<contra_rank:
+                return True
+            else:
+                return False
+
+            # END confidence-score filtering
+
+
         if self.filter_heuristics_rank==True:
             pro_rank=99
-            contra_rank=99        
-            
+            contra_rank=99
+
             # 1. check rank of EXACT MATCH record specifying XOR relation
             rank_order_exact_match = self.get_record_rank(verb2, verb1, Observation.ORDER, obj)
             pro_rank = rank_order_exact_match
@@ -226,8 +284,8 @@ class KnowledgeBase:
         # Filter heuristics based on provenance
         if self.filter_heuristics_rank==True:
             pro_rank=99
-            contra_rank=99        
-            
+            contra_rank=99
+
             # 1. check rank of EXACT MATCH record specifying XOR relation
             rank_xor_exact_match = self.get_record_rank(verb1, verb2, Observation.XOR, obj)
             pro_rank = rank_xor_exact_match
@@ -290,8 +348,8 @@ class KnowledgeBase:
     def has_cooc_dependency(self, verb1, verb2, sim_computer, obj=''):
         if self.filter_heuristics_rank==True:
             pro_rank=99
-            contra_rank=99        
-            
+            contra_rank=99
+
             # 1. check rank of EXACT MATCH record specifying CO_OCC relation
             rank_cooc_exact_match = self.get_record_rank(verb1, verb2, Observation.CO_OCC, obj)
             pro_rank = rank_cooc_exact_match
@@ -364,7 +422,7 @@ class KnowledgeBase:
                         # if obj does MATTER, only use object-independent and object-specific records
                         for record in records_to_append:
 
-                            if obj=='':                            
+                            if obj=='':
                                 records.append(record)
                             else:
                                 if obj in ['',obj]:
@@ -384,7 +442,7 @@ class KnowledgeBase:
                     # if obj does MATTER, only use object-independent and object-specific records
                     for record in records_to_append:
 
-                        if obj=='':                            
+                        if obj=='':
                             records.append(record)
                         else:
                             if obj in ['',obj]:
@@ -403,7 +461,7 @@ class KnowledgeBase:
                     # if obj does MATTER, only use object-independent and object-specific records
                     for record in records_to_append:
 
-                        if obj=='':                            
+                        if obj=='':
                             records.append(record)
                         else:
                             if obj in ['',obj]:
@@ -462,16 +520,16 @@ class KnowledgeBase:
     """
 
     def set_norm_confidence_for_all_records(self):
-        
-        
+
+
         #Extract normalized confidence for single record
         #If included in several datasets, add up
         #If included several times in same dataset, get highest conf
-        
+
         for key, knowledge_record in self.record_map.items():
             norm_confidence = 0
             conf_dict = {}
-            
+
             # If single source, then just copy normalized conf score, and jump to next
             if len(knowledge_record.source)==1:
 
@@ -496,17 +554,17 @@ class KnowledgeBase:
                         # If higher, then overwrite
                         if conf>existing_conf:
                             conf_dict[dataset] = conf
-                
+
                 # add up conf scores
                 for key, value in conf_dict.items():
                     norm_confidence+=value
-        
+
             knowledge_record.normconf = norm_confidence
 
 
     def filter_out_conflicting_records(self):
         pass
-    
+
 
     def get_all_verbs(self):
         if not self.verbs:

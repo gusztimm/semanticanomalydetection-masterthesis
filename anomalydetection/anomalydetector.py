@@ -135,7 +135,7 @@ class AnomalyDetector:
                 return True
         return False
 
-    # No object addition needed, because in coocc_pairs only those event labels have been added which correspond to an object
+    # GM-OBJ: No object addition needed, because in coocc_pairs only those event labels have been added which correspond to an object
     # This method does not need to be changed in this regard
     def identify_real_cooccurrence_anomalies(self, variant):
         variant_anomalies = set()

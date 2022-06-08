@@ -46,19 +46,21 @@ warnings.filterwarnings("ignore", message="invalid value encountered in multiply
 
 def run_crossvalidation():
     configs = [
-        Configuration(sim_mode=SimMode.EQUAL, limit_bos=False),
-        Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, limit_bos=False),
+        #Configuration(sim_mode=SimMode.EQUAL),
+        Configuration(sim_mode=SimMode.EQUAL, filter_heuristics_rank=True),
+        #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True),
         #Configuration(sim_mode=SimMode.EQUAL, split_loops=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, split_loops=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, min_support=10),
-        Configuration(sim_mode=SimMode.SYNONYM, limit_bos=False),
+        #Configuration(sim_mode=SimMode.SYNONYM),
+        Configuration(sim_mode=SimMode.SYNONYM, filter_heuristics_rank=True),
         #Configuration(sim_mode=SimMode.SYNONYM, split_loops=True, limit_bos=True),
-        Configuration(sim_mode=SimMode.SYNONYM, kb_heuristics=True, limit_bos=False),
+        #Configuration(sim_mode=SimMode.SYNONYM, kb_heuristics=True),
         #Configuration(sim_mode=SimMode.SYNONYM, match_one=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.SYNONYM, match_one=True, kb_heuristics=True, limit_bos=True),
-        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, limit_bos=False),
+        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7),
+        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, filter_heuristics_rank=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, split_loops=True, limit_bos=True),
-        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, limit_bos=False),
+        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, limit_bos=False),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, match_one=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, limit_bos=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, kb_heuristics=True, limit_bos=True),
@@ -99,6 +101,7 @@ def run_crossvalidation():
                     kb = kb_handler.populate_from_ser_fragments(kb_ser_dir, train_logs)
                     kb.min_support = config.min_support
                     kb.apply_filter_heuristics = config.use_kb_heuristics
+                    kb.filter_heuristics_rank = config.filter_heuristics_rank
                     for log_name in test_chunk:
                         print(fold_str, "log:", log_name, "nr", test_chunk.index(log_name) + 1, "out of",
                               len(test_chunk))
