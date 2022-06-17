@@ -15,7 +15,8 @@ class Configuration:
                  min_support=1,  # define the minimal confidence required for a record
                  max_count=sys.maxsize,  # set the maximal times an anomaly may occur in an event log
                  limit_bos=False, # GM-OBJ only use KR which are object independent or correspond to object
-                 filter_heuristics_rank=False # When kb-heuristics is set, consider ranking of different datasets
+                 filter_heuristics_rank=False, # When kb-heuristics is set, consider ranking of different datasets
+                 filter_heuristics_cscore = False # When kb-heuristics is set, consider confidence score of KR
                  ):
         self.use_bert_parser = use_bert_parser
         self.equal_bos = equal_bos
@@ -26,6 +27,7 @@ class Configuration:
         self.use_kb_heuristics = kb_heuristics
         #GM-conflict_resolution
         self.filter_heuristics_rank = filter_heuristics_rank
+        self.filter_heuristics_cscore = filter_heuristics_cscore
 
         self.min_support = min_support
         self.max_count = max_count
@@ -44,6 +46,8 @@ class Configuration:
             res = res + "_kb_heuristics:" + str(self.use_kb_heuristics)
         if self.filter_heuristics_rank:
             res = res + "_filter_heuristics_rank:" + str(self.filter_heuristics_rank)
+        if self.filter_heuristics_cscore:
+            res = res + "_filter_heuristics_cscore:" + str(self.filter_heuristics_cscore)            
         if self.min_support > 1:
             res = res + "_min_support:" + str(self.min_support)
         if self.max_count < sys.maxsize:

@@ -1,11 +1,13 @@
 from knowledgebase_population import linguisticpopulator, knowledgebasehandler
 from knowledgebase.knowledgerecord import Dataset, KnowledgeRecord, Observation
 from knowledgebase.knowledgebase import KnowledgeBase
+from knowledgebase.similaritycomputer import SemanticSimilarityComputer, SynonymSimilarityComputer, SimMode
+from anomalydetection.configuration import Configuration
 import pickle
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
-
+"""
 kb_ser_dir = "input/bpmai/extracted_records"
 kb_new = knowledgebasehandler.populate_from_ser_fragments(kb_ser_dir, case_names=None)
 #kb_new = knowledgebasehandler.populate_knowledge_base(use_bpmai=True, use_verbocean=True)
@@ -28,3 +30,44 @@ for key in kb_new.record_map.keys():
 plt.hist(rank_collection, bins=4)
 plt.gca().set(title='Rank Histogram', xlabel='Rank', ylabel='Frequency')
 plt.show()
+"""
+sim_comp_ser_file = "input/similarity/semanticsimcomputer.ser"
+kb_ser_dir = "input/bpmai/extracted_records"
+
+config = Configuration(sim_mode=SimMode.SYNONYM, filter_heuristics_cscore=True,match_one=False)
+
+sim_computer_semantic = SemanticSimilarityComputer(match_one=config.match_one,
+                                                  sim_threshold=config.sim_threshold,
+                                                  compute_sim_per_log=False)
+sim_computer_synonym = SynonymSimilarityComputer(match_one=config.match_one)
+
+sim_computer = sim_computer_semantic
+
+print(sim_computer.sim_mode)
+
+if sim_computer.sim_mode == SimMode.SEMANTIC_SIM:
+    kb_verbs, dictionary, docsim_index = pickle.load(open(sim_comp_ser_file, "rb"))
+    sim_computer.set_loaded_similarities(kb_verbs, dictionary, docsim_index)
+
+kb_new = knowledgebasehandler.populate_knowledge_base(use_bpmai=False, use_verbocean=True)
+
+
+limit = 100
+i=1
+
+for key, record in kb_new.record_map.items():
+    i+=1
+    print(record)
+
+    if i>limit:
+        break
+
+#similar_records = kb_new.get_similar_records_with_sim_value('approve','check',Observation.ORDER,sim_computer=sim_computer,obj='')
+
+#for record in similar_records:
+    #print(f'{record}\n')
+
+#sim_accept = sim_computer.compute_semantic_sim_verbs_with_similarity_value('accept')
+#sim_reject = sim_computer.compute_semantic_sim_verbs_with_similarity_value('reject')
+
+

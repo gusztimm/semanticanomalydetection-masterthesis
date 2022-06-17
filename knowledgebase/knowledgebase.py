@@ -15,14 +15,15 @@ class KnowledgeBase:
                 Dataset.CONCEPTNET : 2,
                 Dataset.ATOMIC : 1,
                 Dataset.BPMAI : 4
-    }   
+    }
 
     def __init__(self):
         self.record_map = {}
         self.verbs = None
         self.min_support = 1
         self.apply_filter_heuristics = False
-        self.filter_heuristics_rank = True
+        self.filter_heuristics_rank = False
+        self.filter_heuristics_cscore = False        
 
     def get_record_object_match(self, verb1, verb2, record_type, obj):
         verb1 = label_utils.lemmatize_word(verb1)
@@ -78,7 +79,7 @@ class KnowledgeBase:
                         record_count+=record.count
         return record_count
 
-    def get_record_confidence(self, verb1, verb2, record_type, obj=''):
+    def get_record_confidence(self, verb1, verb2, record_type, obj='', ):
         # retrieve list of record, regardless of object
         record_list = self.get_record(verb1, verb2, record_type)
         record_confidence = -1
@@ -89,12 +90,14 @@ class KnowledgeBase:
                 
                 # Returns count of records for ALL records with verb-pair, regardless of object
                 if obj=='':
-                    record_confidence+=record.normconf
+                    if record.normconf>record_confidence:
+                        record_confidence=record.normconf
 
                 # Returns count of records with NO OBJECT/OBJECT-INDEPENDENT or with SPECIFIC OBJECT
                 else:
                     if record.obj in ['', obj]:
-                        record_confidence+=record.normconf
+                        if record.normconf>record_confidence:
+                            record_confidence=record.normconf
 
         return record_confidence
 
@@ -160,6 +163,55 @@ class KnowledgeBase:
     """
     def has_order_violation(self, verb1, verb2, sim_computer, obj=''):
 
+        if self.filter_heuristics_cscore==True:
+            pro_cscore=-1
+            contra_cscore=-1
+            
+            # DONE 1. check confidence of EXACT MATCH record specifying XOR relation
+            cscore_order_exact_match = self.get_record_confidence(verb2, verb1, Observation.ORDER, obj)
+            pro_cscore = cscore_order_exact_match
+
+            # DONE 2. If no EXACT match, and EQ matching only allowed, then cannot be a violation
+            if (sim_computer.sim_mode == SimMode.EQUAL) and pro_cscore==-1:
+                return False
+
+            # DONE 3. SYN or SEM config, thus need to get similar records
+            if (sim_computer.sim_mode != SimMode.EQUAL):
+                #GET similar records
+                similar_records = self.get_similar_records_with_sim_value(verb2, verb1, Observation.ORDER, sim_computer, obj)
+
+                if not similar_records:
+                    # No similar record, rank 99
+                    cscore_order_similar_records = -1
+                else:
+                    #Get max (score*similarity) in similar records array
+                    cscore_order_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+
+                #Neither EQ nor similarity match found supporting evidence, then not a violation
+                if cscore_order_exact_match==-1 and cscore_order_similar_records==-1:     
+                    return False           
+
+                #Only exact match
+                if cscore_order_exact_match!=-1 and cscore_order_similar_records==-1:
+                    pro_cscore = cscore_order_exact_match
+
+                #Both exact and similar records
+                if cscore_order_exact_match!=-1 and cscore_order_similar_records!=-1:    
+                    pro_cscore = cscore_order_exact_match
+
+                #Only similar records
+                if cscore_order_exact_match==-1 and cscore_order_similar_records!=-1:
+                    pro_cscore = cscore_order_similar_records
+
+            # DONE 4. Filtering exclusion relations: are there ORDER/CO_OCC records contradicting with BETTER or same rank?
+            contra_cscore =  self.get_record_confidence(verb1, verb2, Observation.ORDER, obj)
+
+            # DONE 5. Compare ranks
+            if contra_cscore < pro_cscore:
+                return True
+            else:
+                return False
+
         if self.filter_heuristics_rank==True:
             pro_rank=99
             contra_rank=99        
@@ -175,7 +227,7 @@ class KnowledgeBase:
             # 3. SYN or SEM config, thus need to get similar records
             if (sim_computer.sim_mode != SimMode.EQUAL):
                 #GET similar records
-                similar_records = self.get_similar_records(verb1, verb2, Observation.ORDER, sim_computer, obj)
+                similar_records = self.get_similar_records(verb2, verb1, Observation.ORDER, sim_computer, obj)
 
                 if not similar_records:
                     # No similar record, rank 99
@@ -222,6 +274,61 @@ class KnowledgeBase:
 
         # heuristic: check if there is explicit evidence that the verbs should occur in a particular order or
         # if they are in co-occurrence relation. In either case, they should thus not be exclusive
+
+        # Filter heuristics based on confidence score
+
+        if self.filter_heuristics_cscore==True:
+            pro_cscore=-1
+            contra_cscore=-1
+            
+            # DONE 1. check confidence of EXACT MATCH record specifying XOR relation
+            cscore_xor_exact_match = self.get_record_confidence(verb1, verb2, Observation.ORDER, obj)
+            pro_cscore = cscore_xor_exact_match
+
+            # DONE 2. If no EXACT match, and EQ matching only allowed, then cannot be a violation
+            if (sim_computer.sim_mode == SimMode.EQUAL) and pro_cscore==-1:
+                return False
+
+            # DONE 3. SYN or SEM config, thus need to get similar records
+            if (sim_computer.sim_mode != SimMode.EQUAL):
+                #GET similar records
+                similar_records = self.get_similar_records_with_sim_value(verb1, verb2, Observation.XOR, sim_computer, obj)
+
+                if not similar_records:
+                    # No similar record, rank 99
+                    cscore_xor_similar_records = -1
+                else:
+                    #Get max (score*similarity) in similar records array
+                    cscore_xor_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+
+                #Neither EQ nor similarity match found supporting evidence, then not a violation
+                if cscore_xor_exact_match==-1 and cscore_xor_similar_records==-1:     
+                    return False           
+
+                #Only exact match
+                if cscore_xor_exact_match!=-1 and cscore_xor_similar_records==-1:
+                    pro_cscore = cscore_xor_exact_match
+
+                #Both exact and similar records
+                if cscore_xor_exact_match!=-1 and cscore_xor_similar_records!=-1:    
+                    pro_cscore = cscore_xor_exact_match
+
+                #Only similar records
+                if cscore_xor_exact_match==-1 and cscore_xor_similar_records!=-1:
+                    pro_cscore = cscore_xor_similar_records
+
+            # DONE 4. Filtering exclusion relations: are there ORDER/CO_OCC records contradicting with BETTER or same rank?
+            contra_cscore =  max(self.get_record_confidence(verb1, verb2, Observation.ORDER, obj),
+                                self.get_record_confidence(verb2, verb1, Observation.ORDER, obj),
+                                self.get_record_confidence(verb1, verb2, Observation.CO_OCC, obj),
+                                self.get_record_confidence(verb2, verb1, Observation.CO_OCC, obj))
+
+            # DONE 5. Compare ranks
+            if contra_cscore < pro_cscore:
+                return True
+            else:
+                return False
+
 
         # Filter heuristics based on provenance
         if self.filter_heuristics_rank==True:
@@ -288,6 +395,57 @@ class KnowledgeBase:
             return is_violation
 
     def has_cooc_dependency(self, verb1, verb2, sim_computer, obj=''):
+
+        if self.filter_heuristics_cscore==True:
+            pro_cscore=-1
+            contra_cscore=-1
+            
+            # DONE 1. check confidence of EXACT MATCH record specifying XOR relation
+            cscore_cooc_exact_match = self.get_record_confidence(verb1, verb2, Observation.CO_OCC, obj)
+            pro_cscore = cscore_cooc_exact_match
+
+            # DONE 2. If no EXACT match, and EQ matching only allowed, then cannot be a violation
+            if (sim_computer.sim_mode == SimMode.EQUAL) and pro_cscore==-1:
+                return False
+
+            # DONE 3. SYN or SEM config, thus need to get similar records
+            if (sim_computer.sim_mode != SimMode.EQUAL):
+                #GET similar records
+                similar_records = self.get_similar_records_with_sim_value(verb1, verb2, Observation.CO_OCC, sim_computer, obj)
+
+                if not similar_records:
+                    # No similar record, rank 99
+                    cscore_cooc_similar_records = -1
+                else:
+                    #Get max (score*similarity) in similar records array
+                    cscore_cooc_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+
+                #Neither EQ nor similarity match found supporting evidence, then not a violation
+                if cscore_cooc_exact_match==-1 and cscore_cooc_similar_records==-1:     
+                    return False           
+
+                #Only exact match
+                if cscore_cooc_exact_match!=-1 and cscore_cooc_similar_records==-1:
+                    pro_cscore = cscore_cooc_exact_match
+
+                #Both exact and similar records
+                if cscore_cooc_exact_match!=-1 and cscore_cooc_similar_records!=-1:    
+                    pro_cscore = cscore_cooc_exact_match
+
+                #Only similar records
+                if cscore_cooc_exact_match==-1 and cscore_cooc_similar_records!=-1:
+                    pro_cscore = cscore_cooc_similar_records
+
+            # DONE 4. Filtering exclusion relations: are there ORDER/CO_OCC records contradicting with BETTER or same rank?
+            contra_cscore =  self.get_record_confidence(verb1, verb2, Observation.XOR, obj)
+
+            # DONE 5. Compare ranks
+            if contra_cscore < pro_cscore:
+                return True
+            else:
+                return False
+
+
         if self.filter_heuristics_rank==True:
             pro_rank=99
             contra_rank=99        
@@ -411,15 +569,110 @@ class KnowledgeBase:
                     # OLD: records.append(self.get_record(verb1, sim_verb2, record_type))
         return records
 
-    def _get_sim_verbs(self, verb, sim_computer):
+    #GM-CR: new - WITH similarity value
+    def get_similar_records_with_sim_value(self, verb1, verb2, record_type, sim_computer, obj=''):
+            sim_verbs1 = self._get_sim_verbs(verb1, sim_computer, include_sim_value=True)
+            sim_verbs2 = self._get_sim_verbs(verb2, sim_computer, include_sim_value=True)
+
+            records = []
+
+            if not sim_computer.match_one:
+                # both verbs in a record may differ from original ones
+                for sim_verb1 in sim_verbs1:
+                    for sim_verb2 in sim_verbs2:
+                        if self.get_record(sim_verb1[0], sim_verb2[0], record_type):
+
+                            #get list of records with ggf. different objects
+                            sim_value_verb1 = sim_verb1[1]
+                            sim_value_verb2 = sim_verb2[1]
+
+                            records_to_append = self.get_record(sim_verb1[0], sim_verb2[0], record_type)
+
+                            #add each of them
+                            # if obj does NOT matter, use all records
+                            # if obj does MATTER, only use object-independent and object-specific records
+
+                            for record in records_to_append:
+
+                                if obj=='':                            
+                                    records.append((record,sim_value_verb1,sim_value_verb2))
+                                else:
+                                    if obj in ['',obj]:
+                                        records.append((record,sim_value_verb1,sim_value_verb2))
+
+                            #OLD: records.append(self.get_record(sim_verb1, sim_verb2, record_type))
+            else:
+                #     requires that at least one verb in record corresponds to original one
+                for sim_verb1 in sim_verbs1:
+                    if self.get_record(sim_verb1[0], verb2, record_type):
+                        
+                        #save sim value
+                        sim_value = sim_verb1[1]
+
+                        #get list of records with ggf. different objects
+                        records_to_append = (self.get_record(sim_verb1[0], verb2, record_type),sim_value,1)
+
+                        #add each of them
+                        # if obj does NOT matter, use all records
+                        # if obj does MATTER, only use object-independent and object-specific records
+                        for record in records_to_append:
+
+                            if obj=='':                            
+                                records.append((record,sim_value,1))
+                            else:
+                                if obj in ['',obj]:
+                                    records.append((record,sim_value,1))
+
+                for sim_verb2 in sim_verbs2:
+                    if self.get_record(verb1, sim_verb2[0], record_type):
+
+                        #save sim value
+                        sim_value = sim_verb2[1]
+
+                        #get list of records with ggf. different objects
+                        records_to_append = self.get_record(verb1, sim_verb2[0], record_type)
+
+                        #add each of them
+                        # if obj does NOT matter, use all records
+                        # if obj does MATTER, only use object-independent and object-specific records
+                        for record in records_to_append:
+
+                            if obj=='':                            
+                                records.append((record,1,sim_value))
+                            else:
+                                if obj in ['',obj]:
+                                    records.append((record,1,sim_value))
+
+            return records
+
+    def _get_sim_verbs(self, verb, sim_computer, include_sim_value=False):
         verb = label_utils.lemmatize_word(verb)
         sim_verbs = []
+        
         if sim_computer.sim_mode == SimMode.SYNONYM:
             sim_verbs = sim_computer.get_synonyms(verb)
+
+        # For synonyms, get flat sim value of 0.5
+        # If sim_value is required, then get list of tuples [('accept',0.5),('approve'),0.5]
+        # If sim is not required, then list of verbs only ['accept','approve']
+            if include_sim_value:
+                sim_verbs = list(zip(sim_verbs,[0.5]*len(sim_verbs)))
+
+        # If sim_value is required, then get list of tuples [('accept',0.95),('approve'),0.92]
+        # If sim is not required, then list of verbs only ['accept','approve']
         if sim_computer.sim_mode == SimMode.SEMANTIC_SIM:
-            sim_verbs = sim_computer.compute_semantic_sim_verbs(verb, self.get_all_verbs())
+            if include_sim_value:
+                sim_verbs = sim_computer.compute_semantic_sim_verbs_with_similarity_value(verb)
+            else:
+                sim_verbs = sim_computer.compute_semantic_sim_verbs(verb, self.get_all_verbs())
+
         # filter out any verb that opposeses the original verb
-        sim_verbs = [sim_verb for sim_verb in sim_verbs if not self.get_record(verb, sim_verb, Observation.XOR)]
+    
+        if include_sim_value:
+            sim_verbs = [sim_verb_tuple for sim_verb_tuple in sim_verbs if not self.get_record(verb, sim_verb_tuple[0], Observation.XOR)]   
+        else:
+            sim_verbs = [sim_verb for sim_verb in sim_verbs if not self.get_record(verb, sim_verb, Observation.XOR)]        
+        
         return sim_verbs
 
     # TODO clarify what this is doing, never used

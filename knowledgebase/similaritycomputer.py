@@ -80,6 +80,26 @@ class SemanticSimilarityComputer(SimilarityComputer):
         sim_verbs = [sim_verb[0] for sim_verb in sim_verbs]
         return sim_verbs
 
+    def compute_semantic_sim_verbs_with_similarity_value(self, verb):
+        lemmatized_verb = label_utils.lemmatize_word(verb)
+
+        if verb in self.sim_verbs_map:
+            return self.sim_verbs_map[verb]
+        sims = self.docsim_index[self.dictionary.doc2bow(simple_preprocess(verb))]
+        sim_verbs = [(self.verb_list[index],sim) for (index, sim) in sims if sim >= self.sim_threshold]
+        
+        sim_verbs_with_sim = []
+        for sim_verb_tuple in sim_verbs:
+        
+            sim_verb = sim_verb_tuple[0]
+            sim_verb_sim = sim_verb_tuple[1]
+
+            # if similar verb's lemmatized form is verb itself, then it's rubbish - e.g. accept vs. accepted/accepting
+            if verb==sim_verb[0] or (verb!=sim_verb[0] and lemmatized_verb!=label_utils.lemmatize_word(sim_verb[0])):
+                sim_verbs_with_sim.append((sim_verb[0], sim_verb_sim))
+
+        return sim_verbs_with_sim
+
 
 class SynonymSimilarityComputer(SimilarityComputer):
     def __init__(self, match_one=False):
