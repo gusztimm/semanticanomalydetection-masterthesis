@@ -81,8 +81,7 @@ class AnomalyDetector:
         if (event1_name, event2_name) in self.paired_anomaly_map:
             return self.paired_anomaly_map[(event1_name, event2_name)]
 
-        #todo-SOLVED 1: anomaly detection should only happen if BO-matching to knowledge records is possible
-        #TODO 2: deal with BO synonyms
+        #todo-SOLVED: anomaly detection should only happen if BO-matching to knowledge records is possible
 
         # check whether two event labels have same BO - if yes, then check for violation of their actions
         if self.pair_should_be_checked(event1_name, event2_name):
