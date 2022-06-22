@@ -3,22 +3,23 @@ from knowledgebase.knowledgerecord import Observation
 
 class Anomaly:
 
-    def __init__(self, anomaly_type, event1, event2, verb1, verb2, record_count):
+    def __init__(self, anomaly_type, event1, event2, verb1, verb2, record_count, score):
         self.anomaly_type = anomaly_type
         self.event1 = event1
         self.event2 = event2
         self.verb1 = verb1
         self.verb2 = verb2
         self.record_count = record_count
+        self.score = score
         self.explanation = self.explain_anomaly()
 
     def explain_anomaly(self):
         if self.anomaly_type == Observation.ORDER:
-            return "Order violation: " + self.event1 + " occurred before " + self.event2
+            return "Order violation: " + self.event1 + " occurred before " + self.event2 + " score: " + str(self.score)
         if self.anomaly_type == Observation.CO_OCC:
-            return "Co-occ violation: " + self.event1 + " occurred without " + self.event2
+            return "Co-occ violation: " + self.event1 + " occurred without " + self.event2 + " score: " + str(self.score)
         if self.anomaly_type == Observation.XOR:
-            return "Exclusion violation: " + self.event1 + " occurred together with " + self.event2
+            return "Exclusion violation: " + self.event1 + " occurred together with " + self.event2 + " score: " + str(self.score)
         return ""
 
     def __repr__(self):

@@ -46,34 +46,32 @@ warnings.filterwarnings("ignore", message="invalid value encountered in multiply
 
 def run_crossvalidation():
     configs = [
-        #Configuration(sim_mode=SimMode.EQUAL),
-        Configuration(sim_mode=SimMode.EQUAL, filter_heuristics_cscore=True),
-        #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True),
-        #Configuration(sim_mode=SimMode.EQUAL, split_loops=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, split_loops=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SYNONYM),
-        #Configuration(sim_mode=SimMode.SYNONYM, filter_heuristics_cscore=True),
-        #Configuration(sim_mode=SimMode.SYNONYM, split_loops=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SYNONYM, kb_heuristics=True),
-        #Configuration(sim_mode=SimMode.SYNONYM, match_one=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SYNONYM, match_one=True, kb_heuristics=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7),
-        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, filter_heuristics_cscore=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, split_loops=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, limit_bos=False),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, match_one=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, filter_heuristics_cscore=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, kb_heuristics=True, match_one=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.6, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.6, kb_heuristics=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.8, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.8, kb_heuristics=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.9, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.9, kb_heuristics=True, limit_bos=True),
-    ]
+            Configuration(sim_mode=SimMode.EQUAL, anomaly_classification=True),
+            Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True),
+            # Configuration(sim_mode=SimMode.EQUAL, split_loops=True),
+            # Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, split_loops=True),
+            # Configuration(sim_mode=SimMode.SYNONYM),
+            # Configuration(sim_mode=SimMode.SYNONYM, split_loops=True),
+            # Configuration(sim_mode=SimMode.SYNONYM, kb_heuristics=True),
+            # Configuration(sim_mode=SimMode.SYNONYM, match_one=True),
+            # Configuration(sim_mode=SimMode.SYNONYM, match_one=True, kb_heuristics=True),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, split_loops=True),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, match_one=True),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, kb_heuristics=True),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, kb_heuristics=True, match_one=True),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.6),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.6, kb_heuristics=True),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.8),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.8, kb_heuristics=True),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.9),
+            # Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.9, kb_heuristics=True),
+        ]
 
-    results_file = "output/results_vo_cn_at_fixconflTest_" + time.strftime("%Y%m%d%H%M%S") + ".csv"
+
+    results_file = "output/results_vo_cn_at_anomalyclass_" + time.strftime("%Y%m%d%H%M%S") + ".csv"
     orig_log_collection = pickle.load(open(orig_log_collection_file, "rb"))
     noisy_log_collection = pickle.load(open(noisy_log_collection_file, "rb"))
 
@@ -103,6 +101,7 @@ def run_crossvalidation():
                     kb.apply_filter_heuristics = config.use_kb_heuristics
                     kb.filter_heuristics_rank = config.filter_heuristics_rank
                     kb.filter_heuristics_cscore = config.filter_heuristics_cscore
+                    kb.anomaly_classification = config.anomaly_classification
                     for log_name in test_chunk:
                         print(fold_str, "log:", log_name, "nr", test_chunk.index(log_name) + 1, "out of",
                               len(test_chunk))

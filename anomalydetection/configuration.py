@@ -16,7 +16,8 @@ class Configuration:
                  max_count=sys.maxsize,  # set the maximal times an anomaly may occur in an event log
                  limit_bos=False, # GM-OBJ only use KR which are object independent or correspond to object
                  filter_heuristics_rank=False, # When kb-heuristics is set, consider ranking of different datasets
-                 filter_heuristics_cscore = False # When kb-heuristics is set, consider confidence score of KR
+                 filter_heuristics_cscore = False, # When kb-heuristics is set, consider confidence score of KR
+                 anomaly_classification = True # in this repo, always set to TRUE
                  ):
         self.use_bert_parser = use_bert_parser
         self.equal_bos = equal_bos
@@ -32,6 +33,9 @@ class Configuration:
         self.min_support = min_support
         self.max_count = max_count
         self.limit_bos = limit_bos # GM-OBJ
+
+        #GM-anomaly_classification
+        self.anomaly_classification = anomaly_classification
         
 
     def __repr__(self):

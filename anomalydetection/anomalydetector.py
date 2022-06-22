@@ -26,7 +26,7 @@ class AnomalyDetector:
         self.parse_map = {}
         self.anomaly_counter = Counter()
         self.paired_anomaly_map = {}
-        self.coocc_pairs = set()
+        self.coocc_pairs = {}
         self.anomalous_variants = []
 
     def detect_anomalies(self):
@@ -98,25 +98,33 @@ class AnomalyDetector:
                 obj = ''
 
             # check for exclusion violations
-            if self.kb.has_xor_violation(verb1, verb2, self.sim_computer, obj):
+            xor_violation, xor_score = self.kb.has_xor_violation(verb1, verb2, self.sim_computer, obj)
+            if xor_violation:
                 # sort exclusion anomalies in a consistent manner
                 if verb1 > verb2:
                     pair_anomalies.add(Anomaly(Observation.XOR, event1_name, event2_name,
                                                verb1, verb2,
-                                               self.kb.get_record_count(verb1, verb2, Observation.XOR, obj)))
+                                               self.kb.get_record_count(verb1, verb2, Observation.XOR, obj),xor_score))
                 else:
                     pair_anomalies.add(Anomaly(Observation.XOR, event1_name, event2_name,
                                                verb2, verb1,
-                                               self.kb.get_record_count(verb1, verb2, Observation.XOR, obj)))
+                                               self.kb.get_record_count(verb1, verb2, Observation.XOR, obj),xor_score))
             #  check for ordering violation
-            if self.kb.has_order_violation(verb1, verb2, self.sim_computer, obj):
+            order_violation, order_score = self.kb.has_order_violation(verb1, verb2, self.sim_computer, obj)
+            if order_violation:
                 pair_anomalies.add(Anomaly(Observation.ORDER, event1_name,
                                            event2_name, verb1, verb2,
-                                           self.kb.get_record_count(verb2, verb1, Observation.ORDER, obj)))
+                                           self.kb.get_record_count(verb2, verb1, Observation.ORDER, obj),order_score))
             # check for potential co-occurrence violation
-            if self.kb.has_cooc_dependency(verb1, verb2, self.sim_computer, obj):
-                self.coocc_pairs.add((event1_name, event2_name))
-                self.coocc_pairs.add((event2_name, event1_name))
+            cooc_dependency, cooc_score = self.kb.has_cooc_dependency(verb1, verb2, self.sim_computer, obj)
+            if cooc_dependency:
+
+                if (event1_name, event2_name) not in self.coocc_pairs.keys():
+                    self.coocc_pairs[(event1_name, event2_name)] = cooc_score
+
+                if (event2_name, event1_name) not in self.coocc_pairs.keys():
+                    self.coocc_pairs[(event2_name, event1_name)] = cooc_score
+
         self.paired_anomaly_map[(event1_name, event2_name)] = pair_anomalies
         return pair_anomalies
 
@@ -141,16 +149,19 @@ class AnomalyDetector:
         # store all events in trace
         for event_name in variant:
             # check if event is part of a co-occurrence pair
-            for (event1_name, event2_name) in self.coocc_pairs:
+            for (event1_name, event2_name) in self.coocc_pairs.keys():
+
+                cooc_score = self.coocc_pairs[(event1_name, event2_name)]
+
                 if event_name == event1_name and event2_name not in variant:
                     verb1, verb2 = self.parser.get_action(event1_name), self.parser.get_action(event2_name)
                     count = self.kb.get_record_count(verb1, verb2, Observation.CO_OCC)
                     if event1_name < event2_name:
                         variant_anomalies.add(
-                            Anomaly(Observation.CO_OCC, event1_name, event2_name, verb1, verb2, count))
+                            Anomaly(Observation.CO_OCC, event1_name, event2_name, verb1, verb2, count, cooc_score))
                     else:
                         variant_anomalies.add(
-                            Anomaly(Observation.CO_OCC, event1_name, event2_name, verb2, verb1, count))
+                            Anomaly(Observation.CO_OCC, event1_name, event2_name, verb2, verb1, count, cooc_score))
         return variant_anomalies
 
     def get_all_actions_in_log(self):
