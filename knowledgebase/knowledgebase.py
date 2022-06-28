@@ -192,7 +192,7 @@ class KnowledgeBase:
                     cscore_order_similar_records = -1
                 else:
                     #Get max (score*similarity) in similar records array
-                    cscore_order_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+                    cscore_order_similar_records= max([record[0].normconf*(record[1]+record[2])/2 for record in similar_records])
 
             # 4. Aggregate values
             
@@ -237,7 +237,7 @@ class KnowledgeBase:
                     cscore_order_similar_records = -1
                 else:
                     #Get max (score*similarity) in similar records array
-                    cscore_order_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+                    cscore_order_similar_records= max([record[0].normconf*(record[1]+record[2])/2 for record in similar_records])
 
                 #Neither EQ nor similarity match found supporting evidence, then not a violation
                 if cscore_order_exact_match==-1 and cscore_order_similar_records==-1:     
@@ -360,7 +360,7 @@ class KnowledgeBase:
                     cscore_xor_similar_records = -1
                 else:
                     #Get max (score*similarity) in similar records array
-                    cscore_xor_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+                    cscore_xor_similar_records= max([record[0].normconf*(record[1]+record[2])/2 for record in similar_records])
 
 
             # 4. Aggregate values
@@ -406,7 +406,7 @@ class KnowledgeBase:
                     cscore_xor_similar_records = -1
                 else:
                     #Get max (score*similarity) in similar records array
-                    cscore_xor_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+                    cscore_xor_similar_records= max([record[0].normconf*(record[1]+record[2])/2 for record in similar_records])
 
                 #Neither EQ nor similarity match found supporting evidence, then not a violation
                 if cscore_xor_exact_match==-1 and cscore_xor_similar_records==-1:     
@@ -530,7 +530,7 @@ class KnowledgeBase:
                     cscore_cooc_similar_records = -1
                 else:
                     #Get max (score*similarity) in similar records array
-                    cscore_cooc_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+                    cscore_cooc_similar_records= max([record[0].normconf*(record[1]+record[2])/2 for record in similar_records])
 
             # 4. Aggregate values
             
@@ -575,7 +575,7 @@ class KnowledgeBase:
                     cscore_cooc_similar_records = -1
                 else:
                     #Get max (score*similarity) in similar records array
-                    cscore_cooc_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+                    cscore_cooc_similar_records= max([record[0].normconf*(record[1]+record[2])/2 for record in similar_records])
 
                 #Neither EQ nor similarity match found supporting evidence, then not a violation
                 if cscore_cooc_exact_match==-1 and cscore_cooc_similar_records==-1:     
@@ -767,7 +767,7 @@ class KnowledgeBase:
                         sim_value = sim_verb1[1]
 
                         #get list of records with ggf. different objects
-                        records_to_append = (self.get_record(sim_verb1[0], verb2, record_type),sim_value,1)
+                        records_to_append = self.get_record(sim_verb1[0], verb2, record_type)
 
                         #add each of them
                         # if obj does NOT matter, use all records

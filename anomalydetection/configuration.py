@@ -58,6 +58,8 @@ class Configuration:
             res = res + "_max_count:" + str(self.max_count)
         if self.limit_bos:
             res = res + "_limit_bos:" + str(self.limit_bos)
+        if self.anomaly_classification:
+            res = res + "_anomaly_classification:" + str(self.anomaly_classification)
         return res
 
     def tofilename(self):
