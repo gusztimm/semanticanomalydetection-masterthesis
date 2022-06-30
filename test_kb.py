@@ -34,6 +34,38 @@ plt.show()
 sim_comp_ser_file = "input/similarity/semanticsimcomputer.ser"
 kb_ser_dir = "input/bpmai/extracted_records"
 
+kb_new = KnowledgeBase()
+kb_new = knowledgebasehandler.populate_from_ser_fragments(kb_ser_dir)
+
+limit = 100
+i=1
+
+catalog = {
+    Dataset.VERBOCEAN:{Observation.XOR:0, Observation.ORDER:0, Observation.CO_OCC:0},
+    Dataset.CONCEPTNET:{Observation.XOR:0, Observation.ORDER:0, Observation.CO_OCC:0},
+    Dataset.ATOMIC:{Observation.XOR:0, Observation.ORDER:0, Observation.CO_OCC:0},
+    Dataset.BPMAI:{Observation.XOR:0, Observation.ORDER:0, Observation.CO_OCC:0}
+}
+
+nr_object=0
+
+for record in kb_new.record_map.values():
+    relation = record.record_type
+
+    for src in record.source:
+        dataset = src[0]
+        
+        catalog[dataset][relation]+=1
+
+        if record.obj!='':
+            nr_object+=1
+
+print(catalog)
+print(f'{nr_object} records have an object')
+
+
+sys.exit()
+
 config = Configuration(sim_mode=SimMode.SYNONYM, filter_heuristics_cscore=True,match_one=False)
 
 sim_computer_semantic = SemanticSimilarityComputer(match_one=config.match_one,

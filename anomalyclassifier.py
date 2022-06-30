@@ -53,19 +53,26 @@ class AnomalyClassifier:
             chunks[actual_increment]=[]
             actual_increment=round(actual_increment+increment,2)
 
+        print(chunks)
         # 2. Fill up dict
 
-        for key in chunks:
 
-            for anomaly in self.anomaly_list:
-                score = anomaly[1]
-                
-                for key in chunks:
-                    if score<key:
-                        chunks[round(key-increment,2)].append(anomaly)
-                        break            
-                else:
-                    chunks[max(chunks.keys())].append(anomaly)
+        for anomaly in self.anomaly_list:
+            score = anomaly[1]
+            
+            for key in chunks:
+                if score<key:
+                    chunks[round(key-increment,2)].append(anomaly)
+                    break            
+            else:
+                chunks[max(chunks.keys())].append(anomaly)
+
+
+        sum_anomalies = 0
+        for anomalies in chunks.values():
+            sum_anomalies+=len(anomalies)
+
+        print(f'sum_anomalies: {sum_anomalies}')
 
         #print(chunks[0.25])
         #print(max(chunks.keys()))
@@ -130,7 +137,7 @@ class AnomalyClassifier:
 """
 
 if __name__ == '__main__':
-    anomaly_classifier = AnomalyClassifier()
+    anomaly_classifier = AnomalyClassifier()   
     chunks_precision, cumulative_precision = anomaly_classifier.split_anomalies_into_chunks()
 
     anomaly_classifier.draw_conf_prec_graph(chunks_precision)
