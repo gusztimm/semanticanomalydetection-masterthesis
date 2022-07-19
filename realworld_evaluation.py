@@ -29,12 +29,12 @@ event_key_map = {
 
 def run_evaluation():
     configs = [
+        Configuration(sim_mode=SimMode.EQUAL),
+        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5),
+        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, split_loops=True),
+        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, kb_heuristics=True, split_loops=True),
+        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, match_one=True),
         Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, match_one=True, split_loops=True),
-    Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, match_one=True, split_loops=True),
-    Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, split_loops=True),
-    Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, kb_heuristics=True, match_one=True, split_loops=True),
-    Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, kb_heuristics=True, split_loops=True)
-
     ]
 
     results_file = "output/results_realworld" + time.strftime("%Y%m%d%H%M%S") + ".csv"
