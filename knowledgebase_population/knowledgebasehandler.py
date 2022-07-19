@@ -31,14 +31,14 @@ def load_serialized_kb(kb_file):
 
 
 def populate_from_ser_fragments(ser_dir, case_names=None, add_verbocean=True):
-    print(f'ser_dir: {ser_dir}')
+    #print(f'ser_dir: {ser_dir}')
     kb = KnowledgeBase()
     # if case_names is not specified, all files will be used for population
     if not case_names:
         case_names = [f for f in os.listdir(ser_dir) if f.endswith(".krser")]
     for case_name in case_names:
         file_path = os.path.join(ser_dir, case_name)  #+ '.krser'
-        print(file_path)
+        #print(file_path)
         if os.path.isfile(file_path):
             observations = pickle.load(open(file_path, "rb"))
             for observation in observations:
