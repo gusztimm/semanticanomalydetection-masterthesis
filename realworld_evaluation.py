@@ -69,7 +69,8 @@ def run_evaluation():
 
 
 def obtain_knowledgebase(ser_file):
-    if os.path.exists(ser_file):
+    #if os.path.exists(ser_file):
+    if False:
         return kb_handler.load_serialized_kb(ser_file)
     else:
         kb = kb_handler.populate_from_ser_fragments(kb_records_ser_dir, add_verbocean=True)
