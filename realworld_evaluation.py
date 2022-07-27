@@ -21,8 +21,8 @@ warnings.filterwarnings("ignore", message="divide by zero encountered in true_di
 warnings.filterwarnings("ignore", message="invalid value encountered in multiply")
 
 event_key_map = {
-    "BPI_2012.xes": "concept:name",
-    "BPIC15_5.xes": "activityNameEN",
+    #"BPI_2012.xes": "concept:name",
+    #"BPIC15_5.xes": "activityNameEN",
     "BPI_2018.xes": "concept:name",
 }
 
@@ -50,16 +50,21 @@ def run_evaluation():
             log_file = os.path.join(log_dir, log_name)
             event_key = event_key_map[log_name]
             if os.path.exists(log_file):
+                print("START xes_importer")
                 log = xes_importer.apply(log_file)
+                print("END xes_importer")
                 for config in configs:
                     # initialize configuration
                     kb.min_support = config.min_support
                     kb.apply_filter_heuristics = config.use_kb_heuristics
+                    print("START loading SIM computer")
                     sim_computer = load_sim_computer(config, parser, log, log_name, event_key)
-
+                    print("END loading SIM computer")
                     # detect anomalies
+                    print("START AnomalyDetection")
                     detector = AnomalyDetector(kb, config, parser, sim_computer, log, log_name, event_key, already_simplified=False)
                     anomaly_counter = detector.detect_anomalies()
+                    print("END AnomalyDetection")
 
                     # record results
                     print('\ndetected anomalies:')
@@ -93,9 +98,13 @@ def load_sim_computer(config, parser, target_log, log_name, event_key):
                                                   compute_sim_per_log=False)
         ser_file = os.path.join(sim_comp_ser_dir, log_name + ".ser")
         if os.path.exists(ser_file):
+            print("START loading similarity matrix - ser file found")
             _load_serialized_similarity_matrix(sim_computer, ser_file)
+            print("END loading similarity matrix - ser file found")
         else:
+            print("START initializing similarity matrix - NO ser file found")
             _initialize_similarity_matrix(sim_computer, target_log, log_name, event_key, parser, ser_file)
+            print("END initializing similarity matrix - NO ser file found")
         return sim_computer
     return None
 
