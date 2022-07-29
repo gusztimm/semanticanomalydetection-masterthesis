@@ -11,10 +11,10 @@ from knowledgebase.similaritycomputer import SimMode
 class KnowledgeBase:
 
     dataset_ranking = {
-                Dataset.VERBOCEAN : 3,
-                Dataset.CONCEPTNET : 2,
-                Dataset.ATOMIC : 1,
-                Dataset.BPMAI : 4
+                Dataset.VERBOCEAN : 4,
+                Dataset.CONCEPTNET : 3,
+                Dataset.ATOMIC : 2,
+                Dataset.BPMAI : 1
     }
 
     def __init__(self):
