@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 class AnomalyClassifier:
 
     chunk_increment = 0.05
+    #ser_file = 'output/04_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.EQUALkbheuristics_Trueanomalyclassification_True.ser'
     ser_file = 'output/04_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.SYNONYMkbheuristics_Trueanomalyclassification_True.ser'
 
     def __init__(self):
@@ -88,28 +89,45 @@ class AnomalyClassifier:
         cumulative_precision = {}
         current_increment = max(chunks.keys()) #0.95
         current_anomaly_list = []
+        anomaly_numbers_direct = {}
+        anomaly_numbers_cumulative = {}
 
         while current_increment in chunks_precision.keys():
-            print(current_increment)
+            #print(current_increment)
 
+            anomaly_counter=0
             for anomaly in chunks[current_increment]:
                 current_anomaly_list.append(anomaly)
+                anomaly_counter+=1
 
-            print(f'Length of anomaly list: {len(current_anomaly_list)}')
+            #print(f'Length of anomaly list: {len(current_anomaly_list)}')
+
+            anomaly_numbers_direct[current_increment]=anomaly_counter
+            anomaly_numbers_cumulative[current_increment]=len(current_anomaly_list)
+
 
             cumulative_precision[current_increment] = self.get_precision(current_anomaly_list)
             current_increment=round(current_increment-increment,2)   
 
-                
-
+        print('TEST')
+        print(anomaly_numbers_direct)
+        print(anomaly_numbers_cumulative)
         print(cumulative_precision)
-        return chunks_precision, cumulative_precision
+
+        return chunks_precision, cumulative_precision, anomaly_numbers_direct, anomaly_numbers_cumulative
+
+
 
     @staticmethod  
-    def draw_conf_prec_graph(chunks_precision):
-        plt.scatter(list(chunks_precision.keys()),list(chunks_precision.values()))
-        plt.xlim(1.1,0)
-        #plt.ylim(0,1.1)
+    def draw_conf_prec_graph(chunks_precision, title, anomaly_numbers):
+
+        #print(chunks)
+        #print([len(chunk for chunk in chunks.values())])
+
+        plt.scatter(list(chunks_precision.keys()),list(chunks_precision.values())) #,s=list(anomaly_numbers.values()))
+        plt.xlim(1.05,0)
+        plt.ylim(0.6,1.05)
+        plt.title(title, fontdict=None, loc='center', pad=None, fontsize='medium')
         plt.show()
 
 """
@@ -138,10 +156,10 @@ class AnomalyClassifier:
 
 if __name__ == '__main__':
     anomaly_classifier = AnomalyClassifier()   
-    chunks_precision, cumulative_precision = anomaly_classifier.split_anomalies_into_chunks()
+    chunks_precision, cumulative_precision, anomaly_numbers_direct, anomaly_numbers_cumulative = anomaly_classifier.split_anomalies_into_chunks()
 
-    anomaly_classifier.draw_conf_prec_graph(chunks_precision)
-    anomaly_classifier.draw_conf_prec_graph(cumulative_precision)
+    anomaly_classifier.draw_conf_prec_graph(chunks_precision, 'Anomaly Score and Precision - SYNONYM - Actual Precision per chunk', anomaly_numbers_direct)
+    anomaly_classifier.draw_conf_prec_graph(cumulative_precision, 'Anomaly Score and Precision - SYNONYM - Cumulative Precision per chunk' , anomaly_numbers_cumulative)
 
     #print(anomaly_classifier.get_precision(anomaly_classifier.anomaly_list))
     #print(anomaly_classifier.get_positives(anomaly_classifier.anomaly_list))
