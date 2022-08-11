@@ -6,6 +6,7 @@ import csv
 import warnings
 import pickle
 from pm4py.objects.log.importer.xes import importer as xes_importer
+from sympy import true
 from anomalydetection.anomalydetector import AnomalyDetector
 from anomalydetection.configuration import Configuration
 from knowledgebase.similaritycomputer import SimMode, SimilarityComputer, SemanticSimilarityComputer, \
@@ -46,25 +47,25 @@ warnings.filterwarnings("ignore", message="invalid value encountered in multiply
 
 def run_crossvalidation():
     configs = [
-        #Configuration(sim_mode=SimMode.EQUAL),
+        Configuration(sim_mode=SimMode.EQUAL, filter_heuristics_cscore=True),
         #Configuration(sim_mode=SimMode.EQUAL, filter_heuristics_rank=True),
         #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, filter_heuristics_rank=True),
         #Configuration(sim_mode=SimMode.EQUAL, split_loops=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.EQUAL, kb_heuristics=True, split_loops=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.SYNONYM),
-        Configuration(sim_mode=SimMode.SYNONYM, filter_heuristics_rank=True),
+        Configuration(sim_mode=SimMode.SYNONYM, filter_heuristics_cscore=True),
         #Configuration(sim_mode=SimMode.SYNONYM, split_loops=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.SYNONYM, kb_heuristics=True),
         #Configuration(sim_mode=SimMode.SYNONYM, match_one=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.SYNONYM, match_one=True, kb_heuristics=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, filter_heuristics_rank=True),
+        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, filter_heuristics_cscore=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, filter_heuristics_rank=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, filter_heuristics_rank=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, filter_heuristics_rank=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, limit_bos=False),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.7, kb_heuristics=True, match_one=True, limit_bos=True),
-        #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5),
+        Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, filter_heuristics_cscore=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, filter_heuristics_cscore=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.5, kb_heuristics=True, match_one=True, limit_bos=True),
         #Configuration(sim_mode=SimMode.SEMANTIC_SIM, sim_threshold=0.6, limit_bos=True),

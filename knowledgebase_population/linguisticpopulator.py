@@ -163,7 +163,6 @@ def populate(knowledge_base, count_per_record = 1):
     for (verb1, verb2, observation_type, obj, dataset, score) in candidates:
         knowledge_base.add_observation(verb1, verb2, obj, observation_type, dataset, score, count = count_per_record)
         continue
-        #TODO remove continue
 
         if observation_type in (Observation.ORDER, Observation.CO_OCC):
             #print('adding ORDER/CO_OCC rel:', verb1, verb2)

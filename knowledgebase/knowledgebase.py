@@ -90,14 +90,22 @@ class KnowledgeBase:
 
                 # Returns count of records for ALL records with verb-pair, regardless of object
                 if obj=='':
-                    if record.normconf>record_confidence:
-                        record_confidence=record.normconf
+                    #MAX-configuration (if there are more records, only the highest score is taken)
+                    #if record.normconf>record_confidence:
+                    #    record_confidence=record.normconf
+
+                    #SUM-configuration (if there are more records, their scores are added up)
+                    record_confidence+=record.normconf
 
                 # Returns count of records with NO OBJECT/OBJECT-INDEPENDENT or with SPECIFIC OBJECT
                 else:
                     if record.obj in ['', obj]:
-                        if record.normconf>record_confidence:
-                            record_confidence=record.normconf
+                        #MAX-configuration (if there are more records, only the highest score is taken)
+                        #if record.normconf>record_confidence:
+                        #    record_confidence=record.normconf
+                        
+                        #SUM-configuration (if there are more records, their scores are added up)
+                        record_confidence+=record.normconf
 
         return record_confidence
 
@@ -185,7 +193,7 @@ class KnowledgeBase:
                     cscore_order_similar_records = -1
                 else:
                     #Get max (score*similarity) in similar records array
-                    cscore_order_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+                    cscore_order_similar_records= max([record[0].normconf*((record[1]+record[2])/2)for record in similar_records])
 
                 #Neither EQ nor similarity match found supporting evidence, then not a violation
                 if cscore_order_exact_match==-1 and cscore_order_similar_records==-1:
@@ -299,7 +307,7 @@ class KnowledgeBase:
                     cscore_xor_similar_records = -1
                 else:
                     #Get max (score*similarity) in similar records array
-                    cscore_xor_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+                    cscore_xor_similar_records= max([record[0].normconf*((record[1]+record[2])/2)for record in similar_records])
 
                 #Neither EQ nor similarity match found supporting evidence, then not a violation
                 if cscore_xor_exact_match==-1 and cscore_xor_similar_records==-1:
@@ -418,7 +426,7 @@ class KnowledgeBase:
                     cscore_cooc_similar_records = -1
                 else:
                     #Get max (score*similarity) in similar records array
-                    cscore_cooc_similar_records= max([record[0].normconf*(record[1]+record[2]/2) for record in similar_records])
+                    cscore_cooc_similar_records= max([record[0].normconf*((record[1]+record[2])/2)for record in similar_records])
 
                 #Neither EQ nor similarity match found supporting evidence, then not a violation
                 if cscore_cooc_exact_match==-1 and cscore_cooc_similar_records==-1:
