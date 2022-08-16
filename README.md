@@ -61,6 +61,7 @@ In the KnowledgeBase class, the anomaly checking functions (has_xxx_violation et
 <b>Main files affected:</b><br>
 `knowledgebase/knowledgebase.py`<br>
 `knowledgebase_population/linguisticpopulator.py` (for score calculation)
+`knowledgebase/similaritycomputer.py` (for calculating similarity-discounted scores)
 
 ### Anomaly Classification
 
