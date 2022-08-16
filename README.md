@@ -50,6 +50,10 @@ anomalydetection/anomalydetector.py
 
 In the KnowledgeBase class, the anomaly checking functions (has_xxx_violation etc.) have been extended with an if-clause checking for the filter_heuristics_rank option. If it is active, then the ranks are collected for all knowledge records supporting and contradicting concerning a certain verb pair. The anomaly is only reported if the rank of supporting records is lower (=better) than the rank of contradicting records.
 
+The ranks are stored in the KnowledgeBase class.
+
 ### Knowledge Record Confidence
+
+In the KnowledgeBase class, the anomaly checking functions (has_xxx_violation etc.) have been extended with an if-clause checking for the filter_heuristics_cscore option. If it is active, then the confidence scores are collected for all knowledge records supporting and contradicting concerning a certain verb pair. The anomaly is only reported if the score of supporting records is higher than the rank of contradicting records.
 
 ### Anomaly Classification
