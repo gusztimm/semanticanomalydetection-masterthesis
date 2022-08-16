@@ -64,10 +64,15 @@ In the KnowledgeBase class, the anomaly checking functions (has_xxx_violation et
 
 ### Anomaly Classification
 
-The anomaly classification is executed by running anomalyclassifier.py in the root folder. To make all necessary calculations, a .ser file is required as input, which is produced by the synthetic evaluation as output.
+The AnomalyDetector class has been modified in a way that the confidence scores triggering an anomaly are captured and supplied to the Anomaly object. The scores are initially reported using the anomaly checking functions (has_xxx_violation etc.).
+
+The anomaly classification is executed by running anomalyclassifier.py in the root folder, which analyzes the scores contained in the Anomaly objects. To make all necessary calculations, a .ser file is required as input, which is produced by the synthetic evaluation as output.
 
 <b>Main files affected:</b><br>
 `anomalyclassifier.py`
+`anomalydetection/anomaly.py`
+`anomalydetection/anomalydetector.py`
+`knowledgebase/knowledgebase.py`<br>
 
 ## Evaluation
 
