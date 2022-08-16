@@ -69,9 +69,9 @@ The AnomalyDetector class has been modified in a way that the confidence scores 
 The anomaly classification is executed by running anomalyclassifier.py in the root folder, which analyzes the scores contained in the Anomaly objects. To make all necessary calculations, a .ser file is required as input, which is produced by the synthetic evaluation as output.
 
 <b>Main files affected:</b><br>
-`anomalyclassifier.py`
-`anomalydetection/anomaly.py`
-`anomalydetection/anomalydetector.py`
+`anomalyclassifier.py`<br>
+`anomalydetection/anomaly.py`<br>
+`anomalydetection/anomalydetector.py`<br>
 `knowledgebase/knowledgebase.py`<br>
 
 ## Evaluation
@@ -81,4 +81,4 @@ The evaluation results are stored in the `output` folder, in separate folders fo
 
 ## Installation
 
-The implementation has been developed using Python 3.7.12. It is recommended to create a virtual environment and resolve the dependencies specified in requirements.txt, e.g. using pip install -r requirements.txt. Note that due to the incompatibility of some components, the approach does not run under Windows.
+The implementation has been developed using Python 3.7.12. It is recommended to create a virtual environment and resolve the dependencies specified in requirements.txt, e.g. using `pip install -r requirements.txt`. Note that due to the incompatibility of some components, the approach does not run under Windows.
