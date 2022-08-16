@@ -73,3 +73,8 @@ The anomaly classification is executed by running anomalyclassifier.py in the ro
 ## Evaluation
 
 The evaluation results are stored in the `output` folder, in separate folders for each approach.
+
+
+## Installation
+
+The implementation has been developed using Python 3.7.12. It is recommended to create a virtual environment and resolve the dependencies specified in requirements.txt, e.g. using pip install -r requirements.txt. Note that due to the incompatibility of some components, the approach does not run under Windows.
