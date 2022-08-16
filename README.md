@@ -28,7 +28,7 @@ Extraction scripts and extracted knowledge records are stored in `knowledgebase_
 
 ### Knowledge base population
 
-Knowledge base is populated using the corresponding method in the script knowledgebase_population/linguisticpopulator.py. This file replaces the original verboceanpopulator.py but preserves its structure.
+Knowledge base is populated using the corresponding method in the script `knowledgebase_population/linguisticpopulator.py`. This file replaces the original `verboceanpopulator.py` but preserves its structure.
 
 ## Reasoning engine improvements
 
