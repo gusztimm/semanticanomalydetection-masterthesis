@@ -44,7 +44,7 @@ class ConceptNet_Serializer:
         parser = BertTagger()
         i=0
 
-        with open('/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/knowledgebase_population/additional_kb/ConceptNet_Output.txt') as rawfile:
+        with open('knowledgebase_population/additional_kb/ConceptNet_Output.txt') as rawfile:
             for line in rawfile:
                 i+=1
 
@@ -82,11 +82,11 @@ class ConceptNet_Serializer:
 
                 self.add_record(record)
                 print(f"{i} - ADDED: verb1: {record['verb1']} - object1: {record['object1']} *{relation}* verb2: {record['verb2']} - object2: {record['object2']}")
-     
+
     def save_serialized_dict(self):
         with open('kb_conceptnet.ser','wb') as pickle_writer:
             pickle.dump(self.results,pickle_writer)
-                    
+
     def print_records(self):
         for result in self.results:
             print(f"{result['verb1']} {result['object1']} {result['relation']} {result['verb2']} {result['object2']}")

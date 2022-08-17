@@ -24,13 +24,13 @@ class Atomic_Extractor:
     }
 
     paths = [
-        '/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/input/kb_atomic/train.tsv',
-        '/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/input/kb_atomic/test.tsv',
-        '/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/input/kb_atomic/dev.tsv'
+        'input/kb_atomic/train.tsv',
+        'input/kb_atomic/test.tsv',
+        'input/kb_atomic/dev.tsv'
     ]
 
     test_paths = [
-        '/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/input/kb_atomic/dev.tsv'
+        'input/kb_atomic/dev.tsv'
     ]
 
     def __init__(self):
@@ -93,11 +93,11 @@ class Atomic_Extractor:
 
                     else:
                         continue
-    
+
     def save_serialized_dict(self):
         with open('kb_atomic.ser','wb') as pickle_writer:
             pickle.dump(self.results,pickle_writer)
-                    
+
     def print_records(self):
         for result in self.results:
             print(f"{result['verb1']} {result['object1']} {result['relation']} {result['verb2']} {result['object2']}")

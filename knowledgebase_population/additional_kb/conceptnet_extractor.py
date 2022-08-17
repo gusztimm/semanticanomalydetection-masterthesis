@@ -17,7 +17,7 @@ class ConceptNet_Extractor:
     def extract_conceptnet():
 
         # load xes_list.txt
-        xes_list = '/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/knowledgebase_population/xes_list.txt'
+        xes_list = 'knowledgebase_population/xes_list.txt'
 
         # initialize verb_list
         verb_list = set()
@@ -66,7 +66,7 @@ class ConceptNet_Extractor:
                 print(f'Synonyms list of action array: {actions}: {synonym_list}')
 
                 # iterate through list of verbs and use ConceptNet crawler
-                
+
                 # Execute ConceptNet Crawler
                 for verb in verb_list:
                     if verb not in verb_history:
@@ -88,7 +88,7 @@ class ConceptNet_Extractor:
                 # Reset verb_list
                 verb_list = set()
 
-                
+
 if __name__ == '__main__':
     extractor = ConceptNet_Extractor()
     extractor.extract_conceptnet()

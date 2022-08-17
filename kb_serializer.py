@@ -3,11 +3,6 @@ import os
 import pickle
 import random
 import sys
-"""
-myDir = os.getcwd()
-sys.path.append('home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/knowledgebase_population')
-sys.path.append('home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/knowledgebase_population/additional_kb')
-"""
 
 from knowledgebase_population import knowledgebasehandler as kb_handler
 from knowledgebase.similaritycomputer import SimMode, SimilarityComputer, SemanticSimilarityComputer, \
