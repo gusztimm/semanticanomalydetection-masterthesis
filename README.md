@@ -77,8 +77,7 @@ The anomaly classification is executed by running anomalyclassifier.py in the ro
 
 ## Evaluation
 
-The evaluation results are stored in the `output` folder, in separate folders for each approach.
-
+The evaluation results are stored in the `output` folder, in separate folders for each approach. The folder `thesis_results` contains all results in structured Excel files.
 
 ## Installation
 
