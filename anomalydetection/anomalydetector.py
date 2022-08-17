@@ -1,3 +1,13 @@
+"""
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
+
+The original version of this file has been downloaded from the repository belonging to the following paper:
+H. van der Aa, A. Rebmann, and H. Leopold, “Natural language-based detection of semantic execution anomalies in event logs,” Information Systems, vol. 102, p. 101824, Dec. 2021.
+The original repository is available at https://gitlab.uni-mannheim.de/processanalytics/semanticanomalydetection
+"""
+
 from collections import Counter
 from anomalydetection.anomaly import Anomaly
 from evaluation.simple_log_collection import SimpleLog
@@ -85,7 +95,7 @@ class AnomalyDetector:
 
         # check whether two event labels have same BO - if yes, then check for violation of their actions
         if self.pair_should_be_checked(event1_name, event2_name):
-            
+
             #get verbs
             verb1, verb2 = self.parser.get_action(event1_name), self.parser.get_action(event2_name)
 

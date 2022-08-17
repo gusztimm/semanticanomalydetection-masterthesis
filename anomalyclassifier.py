@@ -1,3 +1,9 @@
+"""
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
+"""
+
 import pickle, sys
 from knowledgebase.knowledgerecord import Observation
 import matplotlib.pyplot as plt
@@ -5,8 +11,8 @@ import matplotlib.pyplot as plt
 class AnomalyClassifier:
 
     chunk_increment = 0.05
-    #ser_file = 'output/04_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.EQUALkbheuristics_Trueanomalyclassification_True.ser'
-    ser_file = 'output/04_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.SYNONYMkbheuristics_Trueanomalyclassification_True.ser'
+    #ser_file = 'output/05_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.EQUALkbheuristics_Trueanomalyclassification_True.ser'
+    ser_file = 'output/05_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.SYNONYMkbheuristics_Trueanomalyclassification_True.ser'
 
     def __init__(self):
         self.log_result_map = pickle.load(open(self.ser_file, 'rb')).log_result_map
@@ -54,17 +60,17 @@ class AnomalyClassifier:
             chunks[actual_increment]=[]
             actual_increment=round(actual_increment+increment,2)
 
-        print(chunks)
+
         # 2. Fill up dict
 
 
         for anomaly in self.anomaly_list:
             score = anomaly[1]
-            
+
             for key in chunks:
                 if score<key:
                     chunks[round(key-increment,2)].append(anomaly)
-                    break            
+                    break
             else:
                 chunks[max(chunks.keys())].append(anomaly)
 
@@ -73,7 +79,7 @@ class AnomalyClassifier:
         for anomalies in chunks.values():
             sum_anomalies+=len(anomalies)
 
-        print(f'sum_anomalies: {sum_anomalies}')
+        #print(f'sum_anomalies: {sum_anomalies}')
 
         #print(chunks[0.25])
         #print(max(chunks.keys()))
@@ -85,7 +91,7 @@ class AnomalyClassifier:
             chunks_precision[key] = self.get_precision(anomaly_list)
 
         # 4. Calculate cumulative precision
-        
+
         cumulative_precision = {}
         current_increment = max(chunks.keys()) #0.95
         current_anomaly_list = []
@@ -107,18 +113,16 @@ class AnomalyClassifier:
 
 
             cumulative_precision[current_increment] = self.get_precision(current_anomaly_list)
-            current_increment=round(current_increment-increment,2)   
+            current_increment=round(current_increment-increment,2)
 
-        print('TEST')
-        print(anomaly_numbers_direct)
-        print(anomaly_numbers_cumulative)
-        print(cumulative_precision)
+        print(f'Anomalies in chunk: {anomaly_numbers_direct}')
+        print(f'Anomalies cumulatively in chunk: {anomaly_numbers_cumulative}')
+        print(f'Actual precision per chunk: {chunks_precision}')
+        print(f'Cumulative precision per chunk: {cumulative_precision}')
 
         return chunks_precision, cumulative_precision, anomaly_numbers_direct, anomaly_numbers_cumulative
 
-
-
-    @staticmethod  
+    @staticmethod
     def draw_conf_prec_graph(chunks_precision, title, anomaly_numbers):
 
         #print(chunks)
@@ -155,7 +159,7 @@ class AnomalyClassifier:
 """
 
 if __name__ == '__main__':
-    anomaly_classifier = AnomalyClassifier()   
+    anomaly_classifier = AnomalyClassifier()
     chunks_precision, cumulative_precision, anomaly_numbers_direct, anomaly_numbers_cumulative = anomaly_classifier.split_anomalies_into_chunks()
 
     anomaly_classifier.draw_conf_prec_graph(chunks_precision, 'Anomaly Score and Precision - SYNONYM - Actual Precision per chunk', anomaly_numbers_direct)
@@ -163,7 +167,3 @@ if __name__ == '__main__':
 
     #print(anomaly_classifier.get_precision(anomaly_classifier.anomaly_list))
     #print(anomaly_classifier.get_positives(anomaly_classifier.anomaly_list))
-
-
-
-

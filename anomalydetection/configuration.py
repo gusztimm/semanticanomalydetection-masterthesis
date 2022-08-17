@@ -1,3 +1,13 @@
+"""
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
+
+The original version of this file has been downloaded from the repository belonging to the following paper:
+H. van der Aa, A. Rebmann, and H. Leopold, “Natural language-based detection of semantic execution anomalies in event logs,” Information Systems, vol. 102, p. 101824, Dec. 2021.
+The original repository is available at https://gitlab.uni-mannheim.de/processanalytics/semanticanomalydetection
+"""
+
 from knowledgebase.similaritycomputer import SimMode
 import sys
 
@@ -36,7 +46,7 @@ class Configuration:
 
         #GM-anomaly_classification
         self.anomaly_classification = anomaly_classification
-        
+
 
     def __repr__(self):
         res = "sim_mode:" + str(self.sim_mode)
@@ -51,7 +61,7 @@ class Configuration:
         if self.filter_heuristics_rank:
             res = res + "_filter_heuristics_rank:" + str(self.filter_heuristics_rank)
         if self.filter_heuristics_cscore:
-            res = res + "_filter_heuristics_cscore:" + str(self.filter_heuristics_cscore)            
+            res = res + "_filter_heuristics_cscore:" + str(self.filter_heuristics_cscore)
         if self.min_support > 1:
             res = res + "_min_support:" + str(self.min_support)
         if self.max_count < sys.maxsize:

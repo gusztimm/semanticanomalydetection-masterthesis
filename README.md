@@ -83,3 +83,13 @@ The evaluation results are stored in the `output` folder, in separate folders fo
 ## Installation
 
 The implementation has been developed using Python 3.7.12. It is recommended to create a virtual environment and resolve the dependencies specified in requirements.txt, e.g. using `pip install -r requirements.txt`. Note that due to the incompatibility of some components, the approach does not run under Windows.
+
+## Reproduction of results
+
+The results of this thesis are reproducible by executing `synthetic_evaluation.py` or `realworld_evaluation.py` and setting the corresponding parameters in the Configuration object. The new parameters added in this thesis are the following:
+
+<b>`limit_bos`</b> BO-matching: only use knowledge records which are object independent or correspond to object
+<b>`filter_heuristics_rank`</b> Conflict resolution based on provenance of knowledge records
+<b>`filter_heuristics_cscore`</b> Conflict resolution based on confidence score of knowledge records
+
+To reproduce the Anomaly Classification results, run `anomalyclassifier.py` in the branch <b>semanticanomalydetection-anomalyclassification</b>.

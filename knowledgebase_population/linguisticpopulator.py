@@ -1,3 +1,13 @@
+"""
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
+
+The original version of this file has been downloaded from the repository belonging to the following paper:
+H. van der Aa, A. Rebmann, and H. Leopold, “Natural language-based detection of semantic execution anomalies in event logs,” Information Systems, vol. 102, p. 101824, Dec. 2021.
+The original repository is available at https://gitlab.uni-mannheim.de/processanalytics/semanticanomalydetection
+"""
+
 from sklearn import datasets
 from knowledgebase.knowledgebase import KnowledgeBase
 from knowledgebase.knowledgerecord import Observation, Dataset
@@ -75,13 +85,13 @@ def populate(knowledge_base, count_per_record = 1):
 
                 if observation_type==Observation.XOR: #relation: Antonym
                     #print('signal: candidate is ANTONYM, proceed to check if exists opposite way')
-                
+
                     # if opposite relation already exists, skip
                     # note: if opposite is there with another score/dataset, it will be filtered in kb.add_observation()
                     if (verb2, verb1, observation_type, '', Dataset.CONCEPTNET, score) not in candidates:
                         #print('signal: candidate is ANTONYM, and not in dict yet, add it!')
                         candidates.add((verb1, verb2, observation_type, '', Dataset.CONCEPTNET, score))
-                        
+
                         # set counter
                         #counter_antonym+=1
 
@@ -100,8 +110,8 @@ def populate(knowledge_base, count_per_record = 1):
 
     print(f'candidate length with also CN: {len(candidates)}')
     print('finished populating based on ConceptNet')
-    
-    
+
+
     #PART 3: Load Atomic records
     with open('/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/knowledgebase_population/additional_kb/kb_atomic.ser','rb') as pickle_loader:
         kb_atomic = pickle.load(pickle_loader)
@@ -133,7 +143,7 @@ def populate(knowledge_base, count_per_record = 1):
                     if (verb2, verb1, observation_type, obj, Dataset.ATOMIC, score) not in candidates:
                         #print('signal: candidate is ANTONYM, and not in dict yet, add it!')
                         candidates.add((verb1, verb2, observation_type, obj, Dataset.ATOMIC, score))
-                        
+
                         # set counter
                         #counter_antonym+=1
 
@@ -171,7 +181,7 @@ def populate(knowledge_base, count_per_record = 1):
             counter+=1
 
         if observation_type is Observation.XOR:
-            
+
             # Is there for this antonym relation also an ORDER relation?
             xor_order_1 = [candidate for candidate in candidates if candidate[0]==verb1 and candidate[1]==verb2 and candidate[2]==Observation.ORDER]
             xor_order_2 = [candidate for candidate in candidates if candidate[0]==verb2 and candidate[1]==verb1 and candidate[2]==Observation.ORDER]
@@ -194,13 +204,13 @@ def populate(knowledge_base, count_per_record = 1):
                     counter+=1
                     added.add( (verb1, verb2, obj, observation_type))
             """
-    
+
 # PART 5: set normalized confidence scores in case a single record is available in several datasets
     knowledge_base.set_norm_confidence_for_all_records()
 
 
     print('finished populating based on linguistic resources')
-            
+
 
 def get_all_verbs():
     temp_kb = KnowledgeBase()

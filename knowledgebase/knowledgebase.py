@@ -1,12 +1,18 @@
+"""
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
+
+The original version of this file has been downloaded from the repository belonging to the following paper:
+H. van der Aa, A. Rebmann, and H. Leopold, “Natural language-based detection of semantic execution anomalies in event logs,” Information Systems, vol. 102, p. 101824, Dec. 2021.
+The original repository is available at https://gitlab.uni-mannheim.de/processanalytics/semanticanomalydetection
+"""
+
 from knowledgebase.knowledgerecord import KnowledgeRecord, Observation, Dataset
 import labelparser.label_utils as label_utils
 from gensim.utils import simple_preprocess
 
 from knowledgebase.similaritycomputer import SimMode
-
-"""
-@GM: object property extended
-"""
 
 class KnowledgeBase:
 
@@ -23,8 +29,8 @@ class KnowledgeBase:
         self.min_support = 1
         self.apply_filter_heuristics = False
         self.filter_heuristics_rank = False
-        self.filter_heuristics_cscore = False 
-        self.anomaly_classification = True       
+        self.filter_heuristics_cscore = False
+        self.anomaly_classification = True
 
     def get_record_object_match(self, verb1, verb2, record_type, obj):
         verb1 = label_utils.lemmatize_word(verb1)
@@ -34,7 +40,7 @@ class KnowledgeBase:
         if record_type == Observation.XOR and verb2 > verb1:
             verb1, verb2 = verb2, verb1
 
-         #retrieve records    
+         #retrieve records
         if (verb1, verb2, obj, record_type) in self.record_map:
             return self.record_map[(verb1, verb2, obj, record_type)]
 
@@ -88,7 +94,7 @@ class KnowledgeBase:
         if record_list:
             record_confidence=0
             for record in record_list:
-                
+
                 # Returns count of records for ALL records with verb-pair, regardless of object
                 if obj=='':
                     if record.normconf>record_confidence:
@@ -110,7 +116,7 @@ class KnowledgeBase:
 
         if record_list:
             for record in record_list:
-                
+
                 # Returns rank of records for ALL records with verb-pair, regardless of object
                 if obj=='':
                     for src in record.source:
@@ -125,7 +131,7 @@ class KnowledgeBase:
         # Return lowest rank (highest priority)
         return min(record_rank)
 
-        
+
     # GM-OBJ: obj added
     def add_observation(self, verb1, verb2, obj, record_type, dataset, conf, count=1):
         # ensure consistent ordering for symmetric XOR records
@@ -150,7 +156,7 @@ class KnowledgeBase:
         if record_type == Observation.XOR and verb2 > verb1:
             verb1, verb2 = verb2, verb1
         self.record_map[(verb1, verb2, obj, record_type)] = KnowledgeRecord(verb1, verb2, record_type, obj, count, source)
-            
+
     #Never used
     """
         def has_violation(self, violation_type, verb1, verb2, sim_computer):
@@ -171,7 +177,7 @@ class KnowledgeBase:
 
             # 0. If kb_heur is true and contradicting record, then not a violation
             if self.apply_filter_heuristics and self.get_record_count(verb1, verb2,
-                                                                Observation.ORDER, obj) >= self.min_support:                
+                                                                Observation.ORDER, obj) >= self.min_support:
                 return False, -1
 
             # 1. Get score of exact match
@@ -195,10 +201,10 @@ class KnowledgeBase:
                     cscore_order_similar_records= max([record[0].normconf*(record[1]+record[2])/2 for record in similar_records])
 
             # 4. Aggregate values
-            
+
             # Neither EQ nor similarity match found supporting evidence, then not a violation
-            if cscore_order_exact_match==-1 and cscore_order_similar_records==-1:     
-                return False, -1        
+            if cscore_order_exact_match==-1 and cscore_order_similar_records==-1:
+                return False, -1
 
             #Only exact match
             if cscore_order_exact_match!=-1 and cscore_order_similar_records==-1:
@@ -206,7 +212,7 @@ class KnowledgeBase:
                 return True, pro_cscore
 
             # Both exact and similar records TODO: Also try other configs!
-            if cscore_order_exact_match!=-1 and cscore_order_similar_records!=-1:    
+            if cscore_order_exact_match!=-1 and cscore_order_similar_records!=-1:
                 pro_cscore = cscore_order_exact_match+cscore_order_similar_records
                 return True, pro_cscore
 
@@ -218,7 +224,7 @@ class KnowledgeBase:
         if self.filter_heuristics_cscore==True:
             pro_cscore=-1
             contra_cscore=-1
-            
+
             # DONE 1. check confidence of EXACT MATCH record specifying XOR relation
             cscore_order_exact_match = self.get_record_confidence(verb2, verb1, Observation.ORDER, obj)
             pro_cscore = cscore_order_exact_match
@@ -240,15 +246,15 @@ class KnowledgeBase:
                     cscore_order_similar_records= max([record[0].normconf*(record[1]+record[2])/2 for record in similar_records])
 
                 #Neither EQ nor similarity match found supporting evidence, then not a violation
-                if cscore_order_exact_match==-1 and cscore_order_similar_records==-1:     
-                    return False          
+                if cscore_order_exact_match==-1 and cscore_order_similar_records==-1:
+                    return False
 
                 #Only exact match
                 if cscore_order_exact_match!=-1 and cscore_order_similar_records==-1:
                     pro_cscore = cscore_order_exact_match
 
                 #Both exact and similar records
-                if cscore_order_exact_match!=-1 and cscore_order_similar_records!=-1:    
+                if cscore_order_exact_match!=-1 and cscore_order_similar_records!=-1:
                     pro_cscore = cscore_order_exact_match
 
                 #Only similar records
@@ -266,8 +272,8 @@ class KnowledgeBase:
 
         if self.filter_heuristics_rank==True:
             pro_rank=99
-            contra_rank=99        
-            
+            contra_rank=99
+
             # 1. check rank of EXACT MATCH record specifying XOR relation
             rank_order_exact_match = self.get_record_rank(verb2, verb1, Observation.ORDER, obj)
             pro_rank = rank_order_exact_match
@@ -306,7 +312,7 @@ class KnowledgeBase:
         else:
             # heuristic: check if there is explicit evidence that verb1 can occur before verb2
             if self.apply_filter_heuristics and self.get_record_count(verb1, verb2,
-                                                                    Observation.ORDER, obj) >= self.min_support:                
+                                                                    Observation.ORDER, obj) >= self.min_support:
                 return False
             # first check if there is a record that specifies that verb2 should occur before verb1
             if self.get_record_count(verb2, verb1, Observation.ORDER, obj) >= self.min_support:
@@ -339,7 +345,7 @@ class KnowledgeBase:
                     (self.get_record_count(verb1, verb2, Observation.ORDER, obj) >= self.min_support or
                     self.get_record_count(verb2, verb1, Observation.ORDER, obj) >= self.min_support or
                     self.get_record_count(verb1, verb2, Observation.CO_OCC, obj) >= self.min_support or
-                    self.get_record_count(verb2, verb1, Observation.CO_OCC, obj) >= self.min_support):              
+                    self.get_record_count(verb2, verb1, Observation.CO_OCC, obj) >= self.min_support):
                 return False, -1
 
             # 1. Get score of exact match
@@ -364,10 +370,10 @@ class KnowledgeBase:
 
 
             # 4. Aggregate values
-            
+
             # Neither EQ nor similarity match found supporting evidence, then not a violation
-            if cscore_xor_exact_match==-1 and cscore_xor_similar_records==-1:     
-                return False, -1        
+            if cscore_xor_exact_match==-1 and cscore_xor_similar_records==-1:
+                return False, -1
 
             #Only exact match
             if cscore_xor_exact_match!=-1 and cscore_xor_similar_records==-1:
@@ -375,7 +381,7 @@ class KnowledgeBase:
                 return True, pro_cscore
 
             # Both exact and similar records TODO: Also try other configs!
-            if cscore_xor_exact_match!=-1 and cscore_xor_similar_records!=-1:    
+            if cscore_xor_exact_match!=-1 and cscore_xor_similar_records!=-1:
                 pro_cscore = cscore_xor_exact_match+cscore_xor_similar_records
                 return True, pro_cscore
 
@@ -387,7 +393,7 @@ class KnowledgeBase:
         if self.filter_heuristics_cscore==True:
             pro_cscore=-1
             contra_cscore=-1
-            
+
             # DONE 1. check confidence of EXACT MATCH record specifying XOR relation
             cscore_xor_exact_match = self.get_record_confidence(verb1, verb2, Observation.XOR, obj)
             pro_cscore = cscore_xor_exact_match
@@ -409,15 +415,15 @@ class KnowledgeBase:
                     cscore_xor_similar_records= max([record[0].normconf*(record[1]+record[2])/2 for record in similar_records])
 
                 #Neither EQ nor similarity match found supporting evidence, then not a violation
-                if cscore_xor_exact_match==-1 and cscore_xor_similar_records==-1:     
-                    return False           
+                if cscore_xor_exact_match==-1 and cscore_xor_similar_records==-1:
+                    return False
 
                 #Only exact match
                 if cscore_xor_exact_match!=-1 and cscore_xor_similar_records==-1:
                     pro_cscore = cscore_xor_exact_match
 
                 #Both exact and similar records
-                if cscore_xor_exact_match!=-1 and cscore_xor_similar_records!=-1:    
+                if cscore_xor_exact_match!=-1 and cscore_xor_similar_records!=-1:
                     pro_cscore = cscore_xor_exact_match
 
                 #Only similar records
@@ -440,8 +446,8 @@ class KnowledgeBase:
         # Filter heuristics based on provenance
         if self.filter_heuristics_rank==True:
             pro_rank=99
-            contra_rank=99        
-            
+            contra_rank=99
+
             # 1. check rank of EXACT MATCH record specifying XOR relation
             rank_xor_exact_match = self.get_record_rank(verb1, verb2, Observation.XOR, obj)
             pro_rank = rank_xor_exact_match
@@ -509,7 +515,7 @@ class KnowledgeBase:
             cscore_cooc_similar_records = -1
 
             # 0. If kb_heur is true and contradicting record, then not a violation
-            if self.apply_filter_heuristics and self.get_record_count(verb1, verb2, Observation.XOR, obj) >= self.min_support:              
+            if self.apply_filter_heuristics and self.get_record_count(verb1, verb2, Observation.XOR, obj) >= self.min_support:
                 return False, -1
 
             # 1. Get score of exact match
@@ -533,10 +539,10 @@ class KnowledgeBase:
                     cscore_cooc_similar_records= max([record[0].normconf*(record[1]+record[2])/2 for record in similar_records])
 
             # 4. Aggregate values
-            
+
             # Neither EQ nor similarity match found supporting evidence, then not a violation
-            if cscore_cooc_exact_match==-1 and cscore_cooc_similar_records==-1:     
-                return False, -1        
+            if cscore_cooc_exact_match==-1 and cscore_cooc_similar_records==-1:
+                return False, -1
 
             #Only exact match
             if cscore_cooc_exact_match!=-1 and cscore_cooc_similar_records==-1:
@@ -544,7 +550,7 @@ class KnowledgeBase:
                 return True, pro_cscore
 
             # Both exact and similar records TODO: Also try other configs!
-            if cscore_cooc_exact_match!=-1 and cscore_cooc_similar_records!=-1:    
+            if cscore_cooc_exact_match!=-1 and cscore_cooc_similar_records!=-1:
                 pro_cscore = cscore_cooc_exact_match+cscore_cooc_similar_records
                 return True, pro_cscore
 
@@ -556,7 +562,7 @@ class KnowledgeBase:
         if self.filter_heuristics_cscore==True:
             pro_cscore=-1
             contra_cscore=-1
-            
+
             # DONE 1. check confidence of EXACT MATCH record specifying XOR relation
             cscore_cooc_exact_match = self.get_record_confidence(verb1, verb2, Observation.CO_OCC, obj)
             pro_cscore = cscore_cooc_exact_match
@@ -578,15 +584,15 @@ class KnowledgeBase:
                     cscore_cooc_similar_records= max([record[0].normconf*(record[1]+record[2])/2 for record in similar_records])
 
                 #Neither EQ nor similarity match found supporting evidence, then not a violation
-                if cscore_cooc_exact_match==-1 and cscore_cooc_similar_records==-1:     
-                    return False           
+                if cscore_cooc_exact_match==-1 and cscore_cooc_similar_records==-1:
+                    return False
 
                 #Only exact match
                 if cscore_cooc_exact_match!=-1 and cscore_cooc_similar_records==-1:
                     pro_cscore = cscore_cooc_exact_match
 
                 #Both exact and similar records
-                if cscore_cooc_exact_match!=-1 and cscore_cooc_similar_records!=-1:    
+                if cscore_cooc_exact_match!=-1 and cscore_cooc_similar_records!=-1:
                     pro_cscore = cscore_cooc_exact_match
 
                 #Only similar records
@@ -605,8 +611,8 @@ class KnowledgeBase:
 
         if self.filter_heuristics_rank==True:
             pro_rank=99
-            contra_rank=99        
-            
+            contra_rank=99
+
             # 1. check rank of EXACT MATCH record specifying CO_OCC relation
             rank_cooc_exact_match = self.get_record_rank(verb1, verb2, Observation.CO_OCC, obj)
             pro_rank = rank_cooc_exact_match
@@ -679,7 +685,7 @@ class KnowledgeBase:
                         # if obj does MATTER, only use object-independent and object-specific records
                         for record in records_to_append:
 
-                            if obj=='':                            
+                            if obj=='':
                                 records.append(record)
                             else:
                                 if obj in ['',obj]:
@@ -699,7 +705,7 @@ class KnowledgeBase:
                     # if obj does MATTER, only use object-independent and object-specific records
                     for record in records_to_append:
 
-                        if obj=='':                            
+                        if obj=='':
                             records.append(record)
                         else:
                             if obj in ['',obj]:
@@ -718,7 +724,7 @@ class KnowledgeBase:
                     # if obj does MATTER, only use object-independent and object-specific records
                     for record in records_to_append:
 
-                        if obj=='':                            
+                        if obj=='':
                             records.append(record)
                         else:
                             if obj in ['',obj]:
@@ -751,7 +757,7 @@ class KnowledgeBase:
 
                             for record in records_to_append:
 
-                                if obj=='':                            
+                                if obj=='':
                                     records.append((record,sim_value_verb1,sim_value_verb2))
                                 else:
                                     if obj in ['',obj]:
@@ -762,7 +768,7 @@ class KnowledgeBase:
                 #     requires that at least one verb in record corresponds to original one
                 for sim_verb1 in sim_verbs1:
                     if self.get_record(sim_verb1[0], verb2, record_type):
-                        
+
                         #save sim value
                         sim_value = sim_verb1[1]
 
@@ -774,7 +780,7 @@ class KnowledgeBase:
                         # if obj does MATTER, only use object-independent and object-specific records
                         for record in records_to_append:
 
-                            if obj=='':                            
+                            if obj=='':
                                 records.append((record,sim_value,1))
                             else:
                                 if obj in ['',obj]:
@@ -794,7 +800,7 @@ class KnowledgeBase:
                         # if obj does MATTER, only use object-independent and object-specific records
                         for record in records_to_append:
 
-                            if obj=='':                            
+                            if obj=='':
                                 records.append((record,1,sim_value))
                             else:
                                 if obj in ['',obj]:
@@ -805,7 +811,7 @@ class KnowledgeBase:
     def _get_sim_verbs(self, verb, sim_computer, include_sim_value=False):
         verb = label_utils.lemmatize_word(verb)
         sim_verbs = []
-        
+
         if sim_computer.sim_mode == SimMode.SYNONYM:
             sim_verbs = sim_computer.get_synonyms(verb)
 
@@ -824,12 +830,12 @@ class KnowledgeBase:
                 sim_verbs = sim_computer.compute_semantic_sim_verbs(verb, self.get_all_verbs())
 
         # filter out any verb that opposeses the original verb
-    
+
         if include_sim_value:
-            sim_verbs = [sim_verb_tuple for sim_verb_tuple in sim_verbs if not self.get_record(verb, sim_verb_tuple[0], Observation.XOR)]   
+            sim_verbs = [sim_verb_tuple for sim_verb_tuple in sim_verbs if not self.get_record(verb, sim_verb_tuple[0], Observation.XOR)]
         else:
-            sim_verbs = [sim_verb for sim_verb in sim_verbs if not self.get_record(verb, sim_verb, Observation.XOR)]        
-        
+            sim_verbs = [sim_verb for sim_verb in sim_verbs if not self.get_record(verb, sim_verb, Observation.XOR)]
+
         return sim_verbs
 
     # TODO clarify what this is doing, never used
@@ -872,16 +878,16 @@ class KnowledgeBase:
     """
 
     def set_norm_confidence_for_all_records(self):
-        
-        
+
+
         #Extract normalized confidence for single record
         #If included in several datasets, add up
         #If included several times in same dataset, get highest conf
-        
+
         for key, knowledge_record in self.record_map.items():
             norm_confidence = 0
             conf_dict = {}
-            
+
             # If single source, then just copy normalized conf score, and jump to next
             if len(knowledge_record.source)==1:
 
@@ -906,17 +912,17 @@ class KnowledgeBase:
                         # If higher, then overwrite
                         if conf>existing_conf:
                             conf_dict[dataset] = conf
-                
+
                 # add up conf scores
                 for key, value in conf_dict.items():
                     norm_confidence+=value
-        
+
             knowledge_record.normconf = norm_confidence
 
 
     def filter_out_conflicting_records(self):
         pass
-    
+
 
     def get_all_verbs(self):
         if not self.verbs:

@@ -1,7 +1,8 @@
 """
-@author: Gusztáv Megyesi
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
 """
-
 import sys
 import os
 myDir = os.getcwd()
@@ -92,6 +93,3 @@ if __name__ == '__main__':
     #serialize_xes_activities('/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/knowledgebase_population/xes_list.txt')
 
     pass
-
-
-    
