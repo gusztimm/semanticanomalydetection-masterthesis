@@ -1,3 +1,13 @@
+"""
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
+
+The original version of this file has been downloaded from the repository belonging to the following paper:
+H. van der Aa, A. Rebmann, and H. Leopold, “Natural language-based detection of semantic execution anomalies in event logs,” Information Systems, vol. 102, p. 101824, Dec. 2021.
+The original repository is available at https://gitlab.uni-mannheim.de/processanalytics/semanticanomalydetection
+"""
+
 from knowledgebase.knowledgerecord import KnowledgeRecord, Observation, Dataset
 import labelparser.label_utils as label_utils
 from gensim.utils import simple_preprocess
@@ -103,7 +113,7 @@ class KnowledgeBase:
                         #MAX-configuration (if there are more records, only the highest score is taken)
                         if record.normconf>record_confidence:
                             record_confidence=record.normconf
-                        
+
                         #SUM-configuration (if there are more records, their scores are added up)
                         #record_confidence+=record.normconf
 

@@ -1,3 +1,13 @@
+"""
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
+
+The original version of this file has been downloaded from the repository belonging to the following paper:
+H. van der Aa, A. Rebmann, and H. Leopold, “Natural language-based detection of semantic execution anomalies in event logs,” Information Systems, vol. 102, p. 101824, Dec. 2021.
+The original repository is available at https://gitlab.uni-mannheim.de/processanalytics/semanticanomalydetection
+"""
+
 import gensim.downloader as api
 from enum import Enum
 from gensim.corpora import Dictionary
@@ -87,10 +97,10 @@ class SemanticSimilarityComputer(SimilarityComputer):
             return self.sim_verbs_map[verb]
         sims = self.docsim_index[self.dictionary.doc2bow(simple_preprocess(verb))]
         sim_verbs = [(self.verb_list[index],sim) for (index, sim) in sims if sim >= self.sim_threshold]
-        
+
         sim_verbs_with_sim = []
         for sim_verb_tuple in sim_verbs:
-        
+
             sim_verb = sim_verb_tuple[0]
             sim_verb_sim = sim_verb_tuple[1]
 
@@ -119,7 +129,7 @@ class SynonymSimilarityComputer(SimilarityComputer):
         synonyms.add(lemma)
         self.synonym_map[lemma] = synonyms
         return synonyms
-    
+
     def get_noun_synonyms(self, noun):
         lemma = label_utils.lemmatize_noun(noun)
         if lemma in self.synonym_map:
@@ -184,4 +194,3 @@ class ObjectSemanticSimilarityComputer(SimilarityComputer):
             sim_objects.append([obj])
         sim_objects = [sim_obj[0] for sim_obj in sim_objects]
         return sim_objects
-
