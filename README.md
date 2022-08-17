@@ -89,5 +89,7 @@ The implementation has been developed using Python 3.7.12. It is recommended to 
 The results of this thesis are reproducible by executing `synthetic_evaluation.py` or `realworld_evaluation.py` and setting the corresponding parameters in the Configuration object. The new parameters added in this thesis are the following:
 
 <b>`limit_bos`</b> BO-matching: only use knowledge records which are object independent or correspond to object
-<b>`filter_heuristics_rank`</b> # Conflict resolution based on provenance of knowledge records
-<b>`filter_heuristics_cscore`</b> # Conflict resolution based on confidence score of knowledge records
+<b>`filter_heuristics_rank`</b> Conflict resolution based on provenance of knowledge records
+<b>`filter_heuristics_cscore`</b> Conflict resolution based on confidence score of knowledge records
+
+To reproduce the Anomaly Classification results, run `anomalyclassifier.py` in the branch <b>semanticanomalydetection-anomalyclassification</b>.
