@@ -1,4 +1,4 @@
-# Incorporation of commonsense knowledge resources for Semantic Anomaly Detection in Process Mining
+# Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
 
 This is the code repository of the Master Thesis written by Gusztáv Megyesi, submitted to the Data and Web Science Group of the University of Mannheim.
 
