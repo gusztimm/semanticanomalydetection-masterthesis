@@ -25,8 +25,8 @@ class Configuration:
                  min_support=1,  # define the minimal confidence required for a record
                  max_count=sys.maxsize,  # set the maximal times an anomaly may occur in an event log
                  limit_bos=False, # GM-OBJ only use KR which are object independent or correspond to object
-                 filter_heuristics_rank=False, # When kb-heuristics is set, consider ranking of different datasets
-                 filter_heuristics_cscore = False, # When kb-heuristics is set, consider confidence score of KR
+                 filter_heuristics_rank=False, # consider KR provenance
+                 filter_heuristics_cscore = False, # consider confidence score of KR
                  anomaly_classification = True # in this repo, always set to TRUE
                  ):
         self.use_bert_parser = use_bert_parser

@@ -92,4 +92,4 @@ The results of this thesis are reproducible by executing `synthetic_evaluation.p
 <b>`filter_heuristics_rank`</b> Conflict resolution based on provenance of knowledge records
 <b>`filter_heuristics_cscore`</b> Conflict resolution based on confidence score of knowledge records
 
-To reproduce the Anomaly Classification results, run `anomalyclassifier.py` in the branch <b>semanticanomalydetection-anomalyclassification</b>.
+To reproduce the Anomaly Classification results, run `anomalyclassifier.py` in the branch <b>semanticanomalydetection-anomalyclassification</b>. It analyzes the raw results (.ser file) of anomaly detection runs with the extended KB which are stored in this repo. Therefore, there is no need to re-run the anomaly detection itself.

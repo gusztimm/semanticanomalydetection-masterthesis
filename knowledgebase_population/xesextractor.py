@@ -14,8 +14,8 @@ from labelparser import label_utils
 import pickle
 import xml.etree.ElementTree as ET
 
-xes_folder = '/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/input/bpmai/noisy_logs/'
-list_output = '/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesisknowledgebase_population/'
+xes_folder = 'input/bpmai/noisy_logs/'
+list_output = 'knowledgebase_population/'
 
 def get_events_from_xes(xes_file):
 

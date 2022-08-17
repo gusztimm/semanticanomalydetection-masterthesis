@@ -11,12 +11,13 @@ import matplotlib.pyplot as plt
 class AnomalyClassifier:
 
     chunk_increment = 0.05
+    #Load raw results of previously executed anomaly detection - there is no need to run it anymore:
     #ser_file = 'output/05_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.EQUALkbheuristics_Trueanomalyclassification_True.ser'
     ser_file = 'output/05_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.SYNONYMkbheuristics_Trueanomalyclassification_True.ser'
 
     def __init__(self):
         self.log_result_map = pickle.load(open(self.ser_file, 'rb')).log_result_map
-        self.anomaly_list = self.get_all_anomalies() # (Observation.TYPE, score, True/False) e.g. (Observation.ORDER, 0.255630, True)
+        self.anomaly_list = self.get_all_anomalies()
 
     def get_all_anomalies(self):
         anomaly_list=[]
@@ -33,6 +34,7 @@ class AnomalyClassifier:
 
         return anomaly_list
 
+    # Get true and false positive count of a list of anomalies
     @staticmethod
     def get_positives(anomaly_list):
         true_anomalies = [anomaly for anomaly in anomaly_list if anomaly[2]==True]
@@ -40,6 +42,7 @@ class AnomalyClassifier:
 
         return len(true_anomalies), len(false_anomalies)
 
+    # Get precision of anomalies of a list of anomalies
     @staticmethod
     def get_precision(anomaly_list):
 
@@ -60,10 +63,7 @@ class AnomalyClassifier:
             chunks[actual_increment]=[]
             actual_increment=round(actual_increment+increment,2)
 
-
         # 2. Fill up dict
-
-
         for anomaly in self.anomaly_list:
             score = anomaly[1]
 
@@ -74,15 +74,9 @@ class AnomalyClassifier:
             else:
                 chunks[max(chunks.keys())].append(anomaly)
 
-
         sum_anomalies = 0
         for anomalies in chunks.values():
             sum_anomalies+=len(anomalies)
-
-        #print(f'sum_anomalies: {sum_anomalies}')
-
-        #print(chunks[0.25])
-        #print(max(chunks.keys()))
 
         # 3. Calculate precision per chunk
         chunks_precision = {}
@@ -91,7 +85,6 @@ class AnomalyClassifier:
             chunks_precision[key] = self.get_precision(anomaly_list)
 
         # 4. Calculate cumulative precision
-
         cumulative_precision = {}
         current_increment = max(chunks.keys()) #0.95
         current_anomaly_list = []
@@ -99,18 +92,13 @@ class AnomalyClassifier:
         anomaly_numbers_cumulative = {}
 
         while current_increment in chunks_precision.keys():
-            #print(current_increment)
-
             anomaly_counter=0
             for anomaly in chunks[current_increment]:
                 current_anomaly_list.append(anomaly)
                 anomaly_counter+=1
 
-            #print(f'Length of anomaly list: {len(current_anomaly_list)}')
-
             anomaly_numbers_direct[current_increment]=anomaly_counter
             anomaly_numbers_cumulative[current_increment]=len(current_anomaly_list)
-
 
             cumulative_precision[current_increment] = self.get_precision(current_anomaly_list)
             current_increment=round(current_increment-increment,2)
@@ -125,45 +113,17 @@ class AnomalyClassifier:
     @staticmethod
     def draw_conf_prec_graph(chunks_precision, title, anomaly_numbers):
 
-        #print(chunks)
-        #print([len(chunk for chunk in chunks.values())])
-
         plt.scatter(list(chunks_precision.keys()),list(chunks_precision.values())) #,s=list(anomaly_numbers.values()))
         plt.xlim(1.05,0)
         plt.ylim(0.6,1.05)
         plt.title(title, fontdict=None, loc='center', pad=None, fontsize='medium')
         plt.show()
 
-"""
-
-    print(f'TP overall: {tp_overall}')
-    print(f'FP overall: {fp_overall}')
-
-    print(f'TP XOR: {tp_xor}')
-    print(f'FP XOR: {fp_xor}')
-
-    print(f'TP ORDER: {tp_order}')
-    print(f'FP ORDER: {fp_order}')
-
-    print(f'TP CO_OCC: {tp_cooc}')
-    print(f'FP CO_OCC: {fp_cooc}')
-
-
-    plt.hist(true_scores, bins=50)
-    plt.gca().set(title='True Score Histogram', xlabel='Score', ylabel='Frequency')
-    plt.show()
-
-    plt.hist(false_scores, bins=50)
-    plt.gca().set(title='True Score Histogram', xlabel='Score', ylabel='Frequency')
-    plt.show()
-"""
 
 if __name__ == '__main__':
     anomaly_classifier = AnomalyClassifier()
     chunks_precision, cumulative_precision, anomaly_numbers_direct, anomaly_numbers_cumulative = anomaly_classifier.split_anomalies_into_chunks()
 
+    # Draw plots - might be required to replace EQUAL/SYNYONM in the title
     anomaly_classifier.draw_conf_prec_graph(chunks_precision, 'Anomaly Score and Precision - SYNONYM - Actual Precision per chunk', anomaly_numbers_direct)
     anomaly_classifier.draw_conf_prec_graph(cumulative_precision, 'Anomaly Score and Precision - SYNONYM - Cumulative Precision per chunk' , anomaly_numbers_cumulative)
-
-    #print(anomaly_classifier.get_precision(anomaly_classifier.anomaly_list))
-    #print(anomaly_classifier.get_positives(anomaly_classifier.anomaly_list))

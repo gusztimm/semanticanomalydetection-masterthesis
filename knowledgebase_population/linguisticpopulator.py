@@ -62,7 +62,7 @@ def populate(knowledge_base, count_per_record = 1):
     print(f'candidates length with only VO: {len(candidates)}')
 
     # PART 2: Load Conceptnet records
-    with open('/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/knowledgebase_population/additional_kb/kb_conceptnet.ser','rb') as pickle_loader:
+    with open('knowledgebase_population/additional_kb/kb_conceptnet.ser','rb') as pickle_loader:
         kb_conceptnet = pickle.load(pickle_loader)
 
     for record in kb_conceptnet:
@@ -113,7 +113,7 @@ def populate(knowledge_base, count_per_record = 1):
 
 
     #PART 3: Load Atomic records
-    with open('/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/knowledgebase_population/additional_kb/kb_atomic.ser','rb') as pickle_loader:
+    with open('knowledgebase_population/additional_kb/kb_atomic.ser','rb') as pickle_loader:
         kb_atomic = pickle.load(pickle_loader)
 
 
@@ -193,7 +193,7 @@ def populate(knowledge_base, count_per_record = 1):
                     counter+=1
                     added.add( (verb1, verb2, observation_type, obj))
 
-            # The version below performs object-specific check:
+            # The version below would perform object-specific check:
             # e.g. does NOT recognize if [start cooking] vs. [end cooking] is antonym, but [start progress] vs. [end progress] is ORDER
             """
             if (verb1, verb2, Observation.ORDER) not in candidates and (
