@@ -14,9 +14,6 @@ from gensim.utils import simple_preprocess
 
 from knowledgebase.similaritycomputer import SimMode
 
-"""
-@GM: object property extended
-"""
 
 class KnowledgeBase:
 
@@ -49,8 +46,7 @@ class KnowledgeBase:
 
         return None
 
-    # GM-OBJ: obj added
-    # now returns a list of matching records instead of single record
+    # Limit-BO: now returns a list of matching records instead of single record
     def get_record(self, verb1, verb2, record_type):
         verb1 = label_utils.lemmatize_word(verb1)
         verb2 = label_utils.lemmatize_word(verb2)
@@ -69,8 +65,7 @@ class KnowledgeBase:
             return record_results
         return None
 
-    # GM-OBJ: obj added
-    # GM-OBJ: this function treats all objects as equal (attend school vs. go to school results in attend->go to)
+    # Limit-BO: this function treats all objects as equal (attend school vs. go to school results in attend->go to)
     def get_record_count(self, verb1, verb2, record_type, obj=''):
         # retrieve list of record, regardless of object
         record_list = self.get_record(verb1, verb2, record_type)
@@ -143,7 +138,6 @@ class KnowledgeBase:
         return min(record_rank)
 
 
-    # GM-OBJ: obj added
     def add_observation(self, verb1, verb2, obj, record_type, dataset, conf, count=1):
         # ensure consistent ordering for symmetric XOR records
         if record_type == Observation.XOR and verb2 > verb1:
@@ -156,7 +150,6 @@ class KnowledgeBase:
         else:
             self.add_new_record(verb1, verb2, obj, record_type, count, dataset, conf)
 
-    # GM-OBJ: obj added
     def add_new_record(self, verb1, verb2, obj, record_type, count, dataset, conf):
         verb1 = label_utils.lemmatize_word(verb1)
         verb2 = label_utils.lemmatize_word(verb2)
@@ -185,15 +178,15 @@ class KnowledgeBase:
             pro_cscore=-1
             contra_cscore=-1
 
-            # DONE 1. check confidence of EXACT MATCH record specifying XOR relation
+            # 1. check confidence of EXACT MATCH record specifying XOR relation
             cscore_order_exact_match = self.get_record_confidence(verb2, verb1, Observation.ORDER, obj)
             pro_cscore = cscore_order_exact_match
 
-            # DONE 2. If no EXACT match, and EQ matching only allowed, then cannot be a violation
+            # 2. If no EXACT match, and EQ matching only allowed, then cannot be a violation
             if (sim_computer.sim_mode == SimMode.EQUAL) and pro_cscore==-1:
                 return False
 
-            # DONE 3. SYN or SEM config, thus need to get similar records
+            # 3. SYN or SEM config, thus need to get similar records
             if (sim_computer.sim_mode != SimMode.EQUAL):
                 #GET similar records
                 similar_records = self.get_similar_records_with_sim_value(verb2, verb1, Observation.ORDER, sim_computer, obj)
@@ -224,10 +217,10 @@ class KnowledgeBase:
                 if cscore_order_exact_match==-1 and cscore_order_similar_records!=-1:
                     pro_cscore = cscore_order_similar_records
 
-            # DONE 4. Filtering exclusion relations: are there ORDER/CO_OCC records contradicting with BETTER or same rank?
+            # 4. Filtering exclusion relations: are there ORDER/CO_OCC records contradicting with BETTER or same rank?
             contra_cscore =  self.get_record_confidence(verb1, verb2, Observation.ORDER, obj)
 
-            # DONE 5. Compare ranks
+            # 5. Compare ranks
             if contra_cscore < pro_cscore:
                 return True
             else:
@@ -302,15 +295,15 @@ class KnowledgeBase:
             pro_cscore=-1
             contra_cscore=-1
 
-            # DONE 1. check confidence of EXACT MATCH record specifying XOR relation
+            # 1. check confidence of EXACT MATCH record specifying XOR relation
             cscore_xor_exact_match = self.get_record_confidence(verb1, verb2, Observation.XOR, obj)
             pro_cscore = cscore_xor_exact_match
 
-            # DONE 2. If no EXACT match, and EQ matching only allowed, then cannot be a violation
+            # 2. If no EXACT match, and EQ matching only allowed, then cannot be a violation
             if (sim_computer.sim_mode == SimMode.EQUAL) and pro_cscore==-1:
                 return False
 
-            # DONE 3. SYN or SEM config, thus need to get similar records
+            # 3. SYN or SEM config, thus need to get similar records
             if (sim_computer.sim_mode != SimMode.EQUAL):
                 #GET similar records
                 similar_records = self.get_similar_records_with_sim_value(verb1, verb2, Observation.XOR, sim_computer, obj)
@@ -342,13 +335,13 @@ class KnowledgeBase:
                 if cscore_xor_exact_match==-1 and cscore_xor_similar_records!=-1:
                     pro_cscore = cscore_xor_similar_records
 
-            # DONE 4. Filtering exclusion relations: are there ORDER/CO_OCC records contradicting with BETTER or same rank?
+            # 4. Filtering exclusion relations: are there ORDER/CO_OCC records contradicting with BETTER or same rank?
             contra_cscore =  max(self.get_record_confidence(verb1, verb2, Observation.ORDER, obj),
                                 self.get_record_confidence(verb2, verb1, Observation.ORDER, obj),
                                 self.get_record_confidence(verb1, verb2, Observation.CO_OCC, obj),
                                 self.get_record_confidence(verb2, verb1, Observation.CO_OCC, obj))
 
-            # DONE 5. Compare ranks
+            # 5. Compare ranks
             if contra_cscore < pro_cscore:
                 return True
             else:
@@ -425,15 +418,15 @@ class KnowledgeBase:
             pro_cscore=-1
             contra_cscore=-1
 
-            # DONE 1. check confidence of EXACT MATCH record specifying XOR relation
+            # 1. check confidence of EXACT MATCH record specifying XOR relation
             cscore_cooc_exact_match = self.get_record_confidence(verb1, verb2, Observation.CO_OCC, obj)
             pro_cscore = cscore_cooc_exact_match
 
-            # DONE 2. If no EXACT match, and EQ matching only allowed, then cannot be a violation
+            # 2. If no EXACT match, and EQ matching only allowed, then cannot be a violation
             if (sim_computer.sim_mode == SimMode.EQUAL) and pro_cscore==-1:
                 return False
 
-            # DONE 3. SYN or SEM config, thus need to get similar records
+            # 3. SYN or SEM config, thus need to get similar records
             if (sim_computer.sim_mode != SimMode.EQUAL):
                 #GET similar records
                 similar_records = self.get_similar_records_with_sim_value(verb1, verb2, Observation.CO_OCC, sim_computer, obj)
@@ -464,10 +457,10 @@ class KnowledgeBase:
                 if cscore_cooc_exact_match==-1 and cscore_cooc_similar_records!=-1:
                     pro_cscore = cscore_cooc_similar_records
 
-            # DONE 4. Filtering exclusion relations: are there ORDER/CO_OCC records contradicting with BETTER or same rank?
+            # 4. Filtering exclusion relations: are there ORDER/CO_OCC records contradicting with BETTER or same rank?
             contra_cscore =  self.get_record_confidence(verb1, verb2, Observation.XOR, obj)
 
-            # DONE 5. Compare ranks
+            # 5. Compare ranks
             if contra_cscore < pro_cscore:
                 return True
             else:
@@ -531,7 +524,7 @@ class KnowledgeBase:
             has_dependency = any([record.count >= self.min_support for record in similar_records])
             return has_dependency
 
-    # GM-OBJ: get_record returns list instead of single KR, this is now considered
+    # Limit-BO: get_record returns list instead of single KR, this is now considered
     def get_similar_records(self, verb1, verb2, record_type, sim_computer, obj=''):
         sim_verbs1 = self._get_sim_verbs(verb1, sim_computer)
         sim_verbs2 = self._get_sim_verbs(verb2, sim_computer)
@@ -703,8 +696,7 @@ class KnowledgeBase:
 
         return sim_verbs
 
-    # TODO clarify what this is doing, never used
-    """
+
     def filter_out_conflicting_records(self):
         new_map = {}
         for (verb1, verb2, record_type) in self.record_map:
@@ -740,7 +732,7 @@ class KnowledgeBase:
                 #     print('removing', (verb1, verb2, record_type, co_occ_count), "from kb. XOR count:",
                 #           xor_count)
         self.record_map = new_map
-    """
+    
 
     def set_norm_confidence_for_all_records(self):
 

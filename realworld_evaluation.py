@@ -67,14 +67,10 @@ def run_evaluation():
                     # initialize configuration
                     kb.min_support = config.min_support
                     kb.apply_filter_heuristics = config.use_kb_heuristics
-                    print("START loading SIM computer")
                     sim_computer = load_sim_computer(config, parser, log, log_name, event_key)
-                    print("END loading SIM computer")
                     # detect anomalies
-                    print("START AnomalyDetection")
                     detector = AnomalyDetector(kb, config, parser, sim_computer, log, log_name, event_key, already_simplified=False)
                     anomaly_counter = detector.detect_anomalies()
-                    print("END AnomalyDetection")
 
                     # record results
                     print('\ndetected anomalies:')

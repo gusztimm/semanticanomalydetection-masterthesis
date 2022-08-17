@@ -91,8 +91,6 @@ class AnomalyDetector:
         if (event1_name, event2_name) in self.paired_anomaly_map:
             return self.paired_anomaly_map[(event1_name, event2_name)]
 
-        #todo-SOLVED: anomaly detection should only happen if BO-matching to knowledge records is possible
-
         # check whether two event labels have same BO - if yes, then check for violation of their actions
         if self.pair_should_be_checked(event1_name, event2_name):
 
@@ -144,8 +142,7 @@ class AnomalyDetector:
                 return True
         return False
 
-    # GM-OBJ: No object addition needed, because in coocc_pairs only those event labels have been added which correspond to an object
-    # This method does not need to be changed in this regard
+    # Limit-BO: No object addition needed, because in coocc_pairs only those event labels have been added which correspond to an object
     def identify_real_cooccurrence_anomalies(self, variant):
         variant_anomalies = set()
         # store all events in trace
