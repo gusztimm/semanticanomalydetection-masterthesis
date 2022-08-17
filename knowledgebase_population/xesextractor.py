@@ -95,6 +95,6 @@ if __name__ == '__main__':
     #run_collect_xes_activities()
 
     # 2.  - serialize each knowledge record
-    #serialize_xes_activities('/home/gumegyes/semanticanomalydetection/semanticanomalydetection-masterthesis/knowledgebase_population/xes_list.txt')
+    #serialize_xes_activities('knowledgebase_population/additional_kb/xes_list.txt')
 
     pass
