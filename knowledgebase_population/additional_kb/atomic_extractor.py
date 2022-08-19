@@ -1,5 +1,7 @@
 """
-@author: Gusztáv Megyesi
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
 """
 
 import sys
@@ -23,6 +25,7 @@ class Atomic_Extractor:
         'isAfter' #happens after -> ORDER)
     }
 
+    # Input files: make sure to download them first. See README file for more info.
     paths = [
         'input/kb_atomic/train.tsv',
         'input/kb_atomic/test.tsv',
@@ -48,6 +51,8 @@ class Atomic_Extractor:
 
         for path in self.paths:
             with open(path) as rawfile:
+
+                # Remove subjects, some common modal verbs and genitive
                 for line in rawfile:
                     line = line.replace("'s","")
                     line = line.replace("'d","")
@@ -58,21 +63,26 @@ class Atomic_Extractor:
                     line = line.replace(' X ',' ')
                     line = line.replace(' Y ',' ')
 
+                    # file is tab-delimited
                     line_list = line.split('\t')
 
+                    # Split line into statements and relation
                     relation = (line_list[1].strip())
                     statement1 = label_utils.remove_stopwords(line_list[0])
                     statement2 = label_utils.remove_stopwords(line_list[2])
 
+                    # only deal with relations contained in interesting_relations
                     if relation in self.interesting_relations:
 
                         # skip none-statements
                         if statement1== 'none' or statement2 == 'none':
                             continue
 
+                        # determine verb and object in each statement
                         statement1_parsed = parser.parse_label(statement1)
                         statement2_parsed = parser.parse_label(statement2)
 
+                        # get all actions and objects from each statement and bring them into dict-format
                         record = {
                             'verb1': [label_utils.lemmatize_word(action) for action in statement1_parsed.actions],
                             'object1' : statement1_parsed.bos,
@@ -81,6 +91,9 @@ class Atomic_Extractor:
                             'relation' : relation
                         }
 
+                        # Leave out the record if:
+                            #- objects differ
+                            #- one of the objects is a placeholder, these are in most cases not real objects and would cause a lot of confusion
                         if not (
                                 (record['object1']==record['object2']) or
                                 ('___' in record['object1']) or
@@ -88,6 +101,7 @@ class Atomic_Extractor:
                                 ):
                             continue
 
+                        # If everything worked well, add record
                         self.add_record(record)
                         print(f'{relation} - {statement1} - {statement2}')
 
@@ -103,7 +117,11 @@ class Atomic_Extractor:
             print(f"{result['verb1']} {result['object1']} {result['relation']} {result['verb2']} {result['object2']}")
 
 
-
+# Instantiate object
 crawler = Atomic_Extractor()
+
+# Load and extract records
 crawler.load_rawfile()
+
+# Save as .ser file
 crawler.save_serialized_dict()

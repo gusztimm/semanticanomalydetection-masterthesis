@@ -2,10 +2,9 @@
 
 This is the code repository of the Master Thesis written by Gusztáv Megyesi, submitted to the Data and Web Science Group of the University of Mannheim.
 
-The original versions of the files contained here has been downloaded from the repository belonging to the following paper:<br>
+The original versions of the files contained here have been downloaded from the repository belonging to the following paper:<br>
 H. van der Aa, A. Rebmann, and H. Leopold, “Natural language-based detection of semantic execution anomalies in event logs,” Information Systems, vol. 102, p. 101824, Dec. 2021.<br><br>
 The original repository is available at https://gitlab.uni-mannheim.de/processanalytics/semanticanomalydetection
-
 ## Structure
 
 The repository is split into two branches:

@@ -1,5 +1,7 @@
 """
-@author: Gusztáv Megyesi
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
 """
 
 import requests
@@ -12,7 +14,7 @@ class ConceptNet_Crawler:
         'HasPrerequisite',
         'Antonym'
     }
-    
+
     # Offset: start from which result?
     # Limit: show this many results on one page
     def __init__(self, searchterm=None, offset=0, limit=1200):
@@ -24,7 +26,7 @@ class ConceptNet_Crawler:
 
         if (searchterm is not None):
              self.api_uri = '/c/en/' + searchterm
-       
+
     def __repr__(self):
         return f'<ConceptNet Crawler with JSON of length {len(self.json_list)} - Last URI {self.api_uri}>'
 
@@ -79,7 +81,7 @@ class ConceptNet_Crawler:
     @staticmethod
     def has_nextPage(json):
         return (
-            ('view' in json.keys()) 
+            ('view' in json.keys())
         and ('@type' in json['view'].keys())
         and (json['view']['@type']=="PartialCollectionView")
         and ('nextPage' in json['view'].keys())
@@ -113,7 +115,7 @@ class ConceptNet_Crawler:
                 # If format of this relation is not okay, then skip to next relation
                 else:
                     continue
-                
+
                 # If the relation is 'interesting' and both nodes are in English, then retrieve record
                 if e_Relation in self.interesting_relations and e_Start_Lang == 'en' and e_End_Lang == 'en':
                     record = {
@@ -124,7 +126,7 @@ class ConceptNet_Crawler:
                     }
                     # Append record to the results list
                     self.results.append(record)
-    
+
     # Write the content of the previously populated results-list to a text file so that it can later be used to build a KnowledgeBase object
     def results_writeFile(self):
         with open('ConceptNet_Output.txt', 'a+') as cn_output:

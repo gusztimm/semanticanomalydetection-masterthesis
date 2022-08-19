@@ -1,6 +1,9 @@
 """
-@author: Gusztáv Megyesi
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
 """
+
 import os
 import sys
 
@@ -16,7 +19,7 @@ class ConceptNet_Extractor:
 
     def extract_conceptnet():
 
-        # load xes_list.txt
+        # load xes_list.txt - this is the list of all activities present in the synthetic logs
         xes_list = 'knowledgebase_population/additional_kb/xes_list.txt'
 
         # initialize verb_list
