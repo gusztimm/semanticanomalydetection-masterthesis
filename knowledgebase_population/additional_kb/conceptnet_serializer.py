@@ -1,6 +1,9 @@
 """
-@author: Gusztáv Megyesi
+This file is part of the repository belonging to the Master Thesis of Gusztáv Megyesi - MN 1526252
+Title: Incorporation of Commonsense Knowledge Resources for Semantic Anomaly Detection in Process Mining
+Submitted to the Data and Web Science Group - Prof. Dr. Han van der Aa - University of Mannheim in August 2022
 """
+
 
 import sys
 import os
@@ -23,6 +26,7 @@ class ConceptNet_Serializer:
     def add_record(self, record):
         self.results.append(record)
 
+    # Function that cleans each line and puts each statement/relation into dict-format
     def conceptnet_tag_line(self, line):
         start_br = line.find('[')
         end_br = line.find(']')
@@ -40,6 +44,7 @@ class ConceptNet_Serializer:
                 }
 
 
+    # Function that loads CN-extraction output file, iterates through each line and extracts actions/objects/relations and confidence score
     def load_rawfile(self):
         parser = BertTagger()
         i=0
@@ -66,6 +71,10 @@ class ConceptNet_Serializer:
                     'score' : line_list['score']
                 }
 
+                # Only extract records, which:
+                #- share the same object1
+                #- have no object associated
+                #- have a verb in both statements
                 if not (
                         (
                         (record['object1']==record['object2']) or
