@@ -23,6 +23,8 @@ Extraction scripts and extracted knowledge records are stored in `knowledgebase_
 
 ### Atomic
 
+In order to reproduce the knowledge extraction from Atomic, its data must be obtained from https://allenai.org/data/atomic-2020.
+
 <b>`kb_atomic.ser`</b>: Atomic knowledge records extracted as dictionary<br>
 <b>`atomic_extractor.py`</b>: Parses Atomic flat files and outputs knowledge records as .ser file
 
