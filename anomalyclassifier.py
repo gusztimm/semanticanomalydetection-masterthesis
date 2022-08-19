@@ -12,8 +12,12 @@ class AnomalyClassifier:
 
     chunk_increment = 0.05
     #Load raw results of previously executed anomaly detection - there is no need to run it anymore:
-    #ser_file = 'output/05_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.EQUALkbheuristics_Trueanomalyclassification_True.ser'
-    ser_file = 'output/05_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.SYNONYMkbheuristics_Trueanomalyclassification_True.ser'
+    ser_file = 'output/05_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.EQUALkbheuristics_Trueanomalyclassification_True.ser'
+    #ser_file = 'output/05_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.SYNONYMkbheuristics_Trueanomalyclassification_True.ser'
+    #ser_file = 'output/05_AnomalyClassification/KBExtended/raw_results/simmode_SimMode.SEMANTICSIMsimthres_0.5kbheuristics_Trueanomalyclassification_True.ser'
+
+
+
 
     def __init__(self):
         self.log_result_map = pickle.load(open(self.ser_file, 'rb')).log_result_map
@@ -125,5 +129,5 @@ if __name__ == '__main__':
     chunks_precision, cumulative_precision, anomaly_numbers_direct, anomaly_numbers_cumulative = anomaly_classifier.split_anomalies_into_chunks()
 
     # Draw plots - might be required to replace EQUAL/SYNYONM in the title
-    anomaly_classifier.draw_conf_prec_graph(chunks_precision, 'Anomaly Score and Precision - SYNONYM - Actual Precision per chunk', anomaly_numbers_direct)
-    anomaly_classifier.draw_conf_prec_graph(cumulative_precision, 'Anomaly Score and Precision - SYNONYM - Cumulative Precision per chunk' , anomaly_numbers_cumulative)
+    anomaly_classifier.draw_conf_prec_graph(chunks_precision, 'Anomaly Score and Precision - SEM 0.5 - Actual Precision per chunk', anomaly_numbers_direct)
+    anomaly_classifier.draw_conf_prec_graph(cumulative_precision, 'Anomaly Score and Precision - SEM 0.5 - Cumulative Precision per chunk' , anomaly_numbers_cumulative)
