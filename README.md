@@ -16,7 +16,7 @@ Extraction scripts and extracted knowledge records are stored in `knowledgebase_
 
 ### ConceptNet
 
-<b>`kb_conceptnet.ser`</b>: ConceptNet knowledge records extracted as dictionary
+<b>`kb_conceptnet.ser`</b>: ConceptNet knowledge records extracted as dictionary<br>
 <b>`conceptnet_crawler.py`</b>: Crawler methods to retrieve JSON files from the ConceptNet API<br>
 <b>`conceptnet_extractor.py`</b>: Retrieves and parses JSON files using the ConceptNet crawler, based on the activities in the synthetic BPMAI logs and their synonyms, stores output as text file<br>
 <b>`conceptnet_crawler.py`</b>: Creates .ser file from the extracted ConceptNet content stored as text file<br>
